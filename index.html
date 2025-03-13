@@ -2,17 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-  <title>Zoom Cam</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#000000">
-  <link rel="apple-touch-icon" href="icon.png">
+  <title>Zoom Camera</title>
   <style>
     html, body {
       margin: 0;
       height: 100%;
       background: #000;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-family: Arial, sans-serif;
       overflow: hidden;
     }
 
@@ -21,183 +17,143 @@
       width: 100vw;
       height: 100vh;
       display: flex;
-      justify-content: center;
       align-items: center;
-      background: black;
+      justify-content: center;
+      background-color: #000;
       overflow: hidden;
     }
 
     video {
       transform-origin: center center;
       transition: transform 0.2s ease;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
+      max-width: none;
     }
 
-    .zoom-bar {
+    #zoomSlider {
       position: absolute;
-      right: 20px;
-      top: 50%;
-      transform: translateY(-50%);
-      height: 300px;
-      width: 40px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .zoom-track {
-      width: 6px;
-      height: 100%;
-      background: #444;
-      border-radius: 3px;
-      position: relative;
-    }
-
-    .zoom-thumb {
-      position: absolute;
-      left: -7px;
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      border: 2px solid #00ff88;
-      cursor: pointer;
-      transition: top 0.1s ease;
-    }
-
-    .zoom-label {
-      color: white;
-      margin-bottom: 10px;
-      font-size: 16px;
-      font-weight: 500;
-      background: rgba(0,0,0,0.6);
-      padding: 4px 10px;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 10px;
+      -webkit-appearance: none;
+    }
+
+    #zoomSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #00ff88;
+      border: 2px solid white;
       cursor: pointer;
+    }
+
+    #zoomValue {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    #zoomInput {
+      position: absolute;
+      bottom: 90px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 16px;
+      width: 80px;
     }
   </style>
 </head>
 <body>
   <div id="container">
     <video id="camera" autoplay playsinline></video>
-    <div class="zoom-bar">
-      <div class="zoom-label" id="zoomValue">1×</div>
-      <div class="zoom-track" id="zoomTrack">
-        <div class="zoom-thumb" id="zoomThumb"></div>
-      </div>
-    </div>
+    <input type="range" id="zoomSlider" min="1" max="100" value="1">
+    <div id="zoomValue">Zoom: 1×</div>
+    <input type="number" id="zoomInput" value="1" min="1" max="100">
   </div>
 
   <script>
     const video = document.getElementById('camera');
-    const zoomTrack = document.getElementById('zoomTrack');
-    const zoomThumb = document.getElementById('zoomThumb');
+    const zoomSlider = document.getElementById('zoomSlider');
     const zoomValue = document.getElementById('zoomValue');
-
+    const zoomInput = document.getElementById('zoomInput');
     let currentZoom = 1;
-    let isDragging = false;
-    let startDragY = 0;
-    let initialTouchDistance = 0;
-    let initialZoom = 1;
 
     // Start camera
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
       .then(stream => {
         video.srcObject = stream;
       })
       .catch(err => {
-        alert("Camera access denied.");
+        alert('Error accessing camera: ' + err.message);
         console.error(err);
       });
 
-    const updateZoom = (zoom) => {
-      // Validate and constrain the zoom level
-      if (isNaN(zoom) || zoom < 0.1 || zoom > 100) {
-        console.error("Invalid zoom value:", zoom);
-        return;
+    // Zoom via slider
+    zoomSlider.addEventListener('input', () => {
+      currentZoom = zoomSlider.value;
+      updateZoom();
+    });
+
+    // Zoom via input field
+    zoomInput.addEventListener('change', () => {
+      let zoomValue = parseFloat(zoomInput.value);
+      if (zoomValue >= 1 && zoomValue <= 100) {
+        currentZoom = zoomValue;
+        zoomSlider.value = currentZoom;
+        updateZoom();
+      } else {
+        zoomInput.value = currentZoom;
       }
-      currentZoom = zoom;
+    });
+
+    function updateZoom() {
       video.style.transform = `scale(${currentZoom})`;
-      zoomValue.textContent = `${currentZoom.toFixed(1)}×`;
-      const percent = (100 - currentZoom) / 99.9;
-      const trackHeight = zoomTrack.offsetHeight;
-      zoomThumb.style.top = `${percent * (trackHeight - 20)}px`;
-    };
+      zoomValue.textContent = `Zoom: ${currentZoom}×`;
+      zoomInput.value = currentZoom;
+    }
 
-    updateZoom(1);
+    // Optional: Pinch-to-zoom for touchscreens
+    let initialDistance = null;
+    let initialZoom = 1;
 
-    // Scroll to zoom
-    zoomTrack.addEventListener('wheel', (e) => {
-      e.preventDefault();
-      const delta = Math.sign(e.deltaY);
-      updateZoom(currentZoom - delta * 0.5);
-    });
-
-    // Drag to zoom
-    zoomThumb.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startDragY = e.clientY;
-      document.body.style.userSelect = 'none';  // Prevent text selection
-    });
-
-    document.addEventListener('mousemove', (e) => {
-      if (!isDragging) return;
-      const deltaY = e.clientY - startDragY;
-      const trackHeight = zoomTrack.offsetHeight;
-      let newThumbTop = parseFloat(zoomThumb.style.top || 0) + deltaY;
-      newThumbTop = Math.max(0, Math.min(trackHeight - 20, newThumbTop));
-      zoomThumb.style.top = `${newThumbTop}px`;
-
-      const percent = (trackHeight - newThumbTop - 20) / (trackHeight - 20);
-      updateZoom(100 * percent);
-      startDragY = e.clientY;
-    });
-
-    document.addEventListener('mouseup', () => {
-      isDragging = false;
-      document.body.style.userSelect = '';  // Re-enable text selection
-    });
-
-    // Pinch to zoom (touch events)
-    zoomTrack.addEventListener('touchstart', (e) => {
+    // Ensure that touch events are correctly detected on mobile
+    video.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
-        initialTouchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        initialDistance = getDistance(e.touches[0], e.touches[1]);
         initialZoom = currentZoom;
+        e.preventDefault(); // Prevents scrolling
       }
     });
 
-    zoomTrack.addEventListener('touchmove', (e) => {
-      if (e.touches.length === 2) {
-        const currentTouchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
-        const zoomChange = (currentTouchDistance / initialTouchDistance) * initialZoom;
-        updateZoom(zoomChange);
+    video.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2 && initialDistance) {
+        const newDistance = getDistance(e.touches[0], e.touches[1]);
+        const zoomFactor = newDistance / initialDistance;
+        currentZoom = Math.min(100, Math.max(1, initialZoom * zoomFactor));
+        zoomSlider.value = currentZoom;
+        updateZoom();
+        e.preventDefault(); // Prevents scrolling
       }
     });
 
-    // Click to zoom input
-    zoomValue.addEventListener('click', () => {
-      const zoomInput = prompt('Enter zoom percentage (e.g., 100 for 100%)', `${currentZoom.toFixed(1)}`);
-      const zoomPercent = parseFloat(zoomInput);
-
-      // Validate the input zoom percentage
-      if (isNaN(zoomPercent) || zoomPercent < 0.1 || zoomPercent > 100) {
-        alert("Please enter a valid zoom value between 0.1 and 100.");
-        return;
-      }
-
-      updateZoom(zoomPercent);
-    });
-  </script>
-
-  <!-- Service Worker registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('service-worker.js').then(() => {
-        console.log('Service worker registered!');
-      });
+    function getDistance(touch1, touch2) {
+      const dx = touch2.clientX - touch1.clientX;
+      const dy = touch2.clientY - touch1.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
     }
   </script>
 </body>
