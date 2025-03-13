@@ -130,10 +130,12 @@
     let initialDistance = null;
     let initialZoom = 1;
 
+    // Ensure that touch events are correctly detected on mobile
     video.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
         initialDistance = getDistance(e.touches[0], e.touches[1]);
         initialZoom = currentZoom;
+        e.preventDefault(); // Prevents scrolling
       }
     });
 
@@ -144,6 +146,7 @@
         currentZoom = Math.min(100, Math.max(1, initialZoom * zoomFactor));
         zoomSlider.value = currentZoom;
         updateZoom();
+        e.preventDefault(); // Prevents scrolling
       }
     });
 
