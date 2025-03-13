@@ -2,12 +2,13 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Zoom Camera</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <style>
     html, body {
       margin: 0;
-      height: 100%;
+      padding: 0;
+      height: 100dvh;
       background: #000;
       font-family: Arial, sans-serif;
       overflow: hidden;
@@ -16,7 +17,7 @@
     #container {
       position: relative;
       width: 100vw;
-      height: 100vh;
+      height: 100dvh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -28,6 +29,9 @@
       transform-origin: center center;
       transition: transform 0.2s ease;
       max-width: none;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
     #zoomSlider {
@@ -54,7 +58,7 @@
 
     #zoomValue {
       position: absolute;
-      bottom: 60px;
+      bottom: 70px;
       left: 50%;
       transform: translateX(-50%);
       color: white;
@@ -66,24 +70,25 @@
 
     #zoomInput {
       position: absolute;
-      bottom: 90px;
+      bottom: 110px;
       left: 50%;
       transform: translateX(-50%);
-      color: white;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 4px 10px;
-      border-radius: 6px;
       font-size: 16px;
+      padding: 6px 10px;
+      border-radius: 5px;
+      border: none;
+      outline: none;
       width: 80px;
+      text-align: center;
     }
   </style>
 </head>
 <body>
   <div id="container">
     <video id="camera" autoplay playsinline></video>
-    <input type="range" id="zoomSlider" min="1" max="100" value="1">
+    <input type="range" id="zoomSlider" min="1" max="100" value="1" step="0.1">
     <div id="zoomValue">Zoom: 1×</div>
-    <input type="number" id="zoomInput" value="1" min="1" max="100">
+    <input id="zoomInput" type="number" min="1" max="100" step="0.1" placeholder="Zoom">
   </div>
 
   <script>
@@ -92,6 +97,14 @@
     const zoomValue = document.getElementById('zoomValue');
     const zoomInput = document.getElementById('zoomInput');
     let currentZoom = 1;
+
+    // Resize fix for phones
+    function setFullHeight() {
+      document.getElementById('container').style.height = window.innerHeight + 'px';
+    }
+    window.addEventListener('resize', setFullHeight);
+    window.addEventListener('orientationchange', setFullHeight);
+    setFullHeight();
 
     // Start camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
@@ -103,39 +116,36 @@
         console.error(err);
       });
 
-    // Zoom via slider
+    function updateZoom() {
+      video.style.transform = `scale(${currentZoom})`;
+      zoomValue.textContent = `Zoom: ${parseFloat(currentZoom).toFixed(1)}×`;
+      zoomSlider.value = currentZoom;
+      zoomInput.value = parseFloat(currentZoom).toFixed(1);
+    }
+
     zoomSlider.addEventListener('input', () => {
       currentZoom = zoomSlider.value;
       updateZoom();
     });
 
-    // Zoom via input field
     zoomInput.addEventListener('change', () => {
-      let zoomValue = parseFloat(zoomInput.value);
-      if (zoomValue >= 1 && zoomValue <= 100) {
-        currentZoom = zoomValue;
-        zoomSlider.value = currentZoom;
+      const val = parseFloat(zoomInput.value);
+      if (!isNaN(val) && val >= 1 && val <= 100) {
+        currentZoom = val;
         updateZoom();
       } else {
         zoomInput.value = currentZoom;
       }
     });
 
-    function updateZoom() {
-      video.style.transform = `scale(${currentZoom})`;
-      zoomValue.textContent = `Zoom: ${currentZoom}×`;
-      zoomInput.value = currentZoom;
-    }
-
-    // Optional: Pinch-to-zoom for touchscreens
+    // Pinch to zoom
     let initialDistance = null;
     let initialZoom = 1;
 
     video.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
         initialDistance = getDistance(e.touches[0], e.touches[1]);
-        initialZoom = currentZoom;
-        e.preventDefault(); // Prevents scrolling
+        initialZoom = parseFloat(currentZoom);
       }
     });
 
@@ -144,9 +154,7 @@
         const newDistance = getDistance(e.touches[0], e.touches[1]);
         const zoomFactor = newDistance / initialDistance;
         currentZoom = Math.min(100, Math.max(1, initialZoom * zoomFactor));
-        zoomSlider.value = currentZoom;
         updateZoom();
-        e.preventDefault(); // Prevents scrolling
       }
     });
 
@@ -155,6 +163,9 @@
       const dy = touch2.clientY - touch1.clientY;
       return Math.sqrt(dx * dx + dy * dy);
     }
+
+    // Initialize zoom UI
+    updateZoom();
   </script>
 </body>
 </html>
