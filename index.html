@@ -2,22 +2,175 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Motion Detector</title>
-  <link rel="stylesheet" href="styles.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background: #0f0f0f;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    #container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: brightness(0.9);
+    }
+
+    #settingsIcon {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      font-size: 22px;
+      color: white;
+      padding: 10px;
+      border-radius: 50%;
+      backdrop-filter: blur(8px);
+      cursor: pointer;
+      z-index: 10;
+    }
+
+    #settings {
+      position: absolute;
+      top: 70px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 15px;
+      border-radius: 12px;
+      color: white;
+      backdrop-filter: blur(10px);
+      display: none;
+      z-index: 10;
+      width: 220px;
+    }
+
+    #settings label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: bold;
+    }
+
+    #canvas {
+      display: none;
+    }
+
+    #player {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 5;
+      display: none;
+      width: 0;
+      height: 0;
+    }
+  </style>
 </head>
 <body>
   <div id="container">
-    <video id="video" autoplay muted></video>
-    <canvas id="canvas" style="display:none;"></canvas>
-    <div id="settings">
-      <label for="soundPicker">Alarm Sound:</label>
-      <input type="file" id="soundPicker" accept="audio/*" />
-    </div>
+    <video id="video" autoplay muted playsinline></video>
+    <canvas id="canvas"></canvas>
+
     <button id="settingsIcon">⚙️</button>
+    <div id="settings">
+      <label>YouTube Alarm URL:</label>
+      <input type="text" id="youtubeUrl" value="https://www.youtube.com/embed/2vjPBrBU-TM?autoplay=1" style="width: 100%; padding: 5px; border-radius: 5px; border: none;">
+    </div>
+
+    <iframe id="player" frameborder="0" allow="autoplay"></iframe>
   </div>
 
-  <audio id="alarm" src="alarm.mp3"></audio>
-  <script src="script.js"></script>
+  <script>
+    const video = document.getElementById("video");
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const settingsBtn = document.getElementById("settingsIcon");
+    const settingsPanel = document.getElementById("settings");
+    const youtubeUrlInput = document.getElementById("youtubeUrl");
+    const player = document.getElementById("player");
+
+    let previousFrame = null;
+    let motionDetected = false;
+    let motionTimeout = null;
+
+    // Toggle settings panel
+    settingsBtn.addEventListener("click", () => {
+      settingsPanel.style.display = settingsPanel.style.display === "none" ? "block" : "none";
+    });
+
+    // Open camera
+    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
+      video.srcObject = stream;
+      video.play();
+      detectMotion();
+    }).catch(err => {
+      alert("Camera access denied or failed.");
+      console.error(err);
+    });
+
+    function detectMotion() {
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+
+      setInterval(() => {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const current = ctx.getImageData(0, 0, canvas.width, canvas.height);
+
+        if (previousFrame) {
+          let diff = 0;
+          for (let i = 0; i < current.data.length; i += 4) {
+            const avgNow = (current.data[i] + current.data[i+1] + current.data[i+2]) / 3;
+            const avgPrev = (previousFrame.data[i] + previousFrame.data[i+1] + previousFrame.data[i+2]) / 3;
+            if (Math.abs(avgNow - avgPrev) > 25) diff++;
+          }
+
+          if (diff > 10000) {
+            if (!motionDetected) {
+              motionDetected = true;
+              playAlarm();
+            }
+            clearTimeout(motionTimeout);
+            motionTimeout = setTimeout(() => {
+              motionDetected = false;
+              setTimeout(stopAlarm, 2000);
+            }, 200);
+          }
+        }
+
+        previousFrame = current;
+      }, 150);
+    }
+
+    function playAlarm() {
+      const url = youtubeUrlInput.value.trim();
+      player.src = url + "&autoplay=1&mute=0";
+      player.style.display = "block";
+      player.style.width = "560px";
+      player.style.height = "315px";
+    }
+
+    function stopAlarm() {
+      player.style.display = "none";
+      player.src = "";
+      player.style.width = "0";
+      player.style.height = "0";
+    }
+  </script>
 </body>
 </html>
