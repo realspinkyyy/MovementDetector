@@ -64,6 +64,7 @@
       background: white;
       border-radius: 50%;
       border: 2px solid #00ff88;
+      cursor: pointer;
       transition: top 0.1s ease;
     }
 
@@ -75,6 +76,7 @@
       background: rgba(0,0,0,0.6);
       padding: 4px 10px;
       border-radius: 10px;
+      cursor: pointer;
     }
   </style>
 </head>
@@ -96,6 +98,8 @@
     const zoomValue = document.getElementById('zoomValue');
 
     let currentZoom = 1;
+    let isDragging = false;
+    let startDragY = 0;
 
     // Start camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
@@ -123,6 +127,40 @@
       e.preventDefault();
       const delta = Math.sign(e.deltaY);
       updateZoom(currentZoom - delta * 0.5);
+    });
+
+    // Drag to zoom
+    zoomThumb.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startDragY = e.clientY;
+      document.body.style.userSelect = 'none';  // Prevent text selection
+    });
+
+    document.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      const deltaY = e.clientY - startDragY;
+      const trackHeight = zoomTrack.offsetHeight;
+      let newThumbTop = parseFloat(zoomThumb.style.top || 0) + deltaY;
+      newThumbTop = Math.max(0, Math.min(trackHeight - 20, newThumbTop));
+      zoomThumb.style.top = `${newThumbTop}px`;
+
+      const percent = (trackHeight - newThumbTop - 20) / (trackHeight - 20);
+      updateZoom(100 * percent);
+      startDragY = e.clientY;
+    });
+
+    document.addEventListener('mouseup', () => {
+      isDragging = false;
+      document.body.style.userSelect = '';  // Re-enable text selection
+    });
+
+    // Click to zoom input
+    zoomValue.addEventListener('click', () => {
+      const zoomInput = prompt('Enter zoom percentage (e.g., 100 for 100%)', `${currentZoom.toFixed(1)}`);
+      const zoomPercent = parseFloat(zoomInput);
+      if (!isNaN(zoomPercent) && zoomPercent >= 0.1 && zoomPercent <= 100) {
+        updateZoom(zoomPercent);
+      }
     });
   </script>
 
