@@ -157,20 +157,38 @@
       }, 150);
     }
 
-    function playAlarm() {
-      const url = youtubeUrlInput.value.trim();
-      player.src = url + "&autoplay=1&mute=0";
-      player.style.display = "block";
-      player.style.width = "560px";
-      player.style.height = "315px";
-    }
+function playAlarm() {
+  let url = youtubeUrlInput.value.trim();
+  let videoId = "";
 
-    function stopAlarm() {
-      player.style.display = "none";
-      player.src = "";
-      player.style.width = "0";
-      player.style.height = "0";
-    }
+  // Handle youtu.be links
+  if (url.includes("youtu.be")) {
+    videoId = url.split("youtu.be/")[1].split(/[?&]/)[0];
+  }
+  // Handle regular YouTube links
+  else if (url.includes("watch?v=")) {
+    videoId = url.split("watch?v=")[1].split(/[?&]/)[0];
+  }
+  // Handle already-embed URLs
+  else if (url.includes("embed")) {
+    player.src = url + "&autoplay=1&mute=0";
+    showPlayer();
+    return;
+  }
+
+  if (videoId) {
+    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
+    showPlayer();
+  } else {
+    alert("Invalid YouTube URL");
+  }
+}
+
+function showPlayer() {
+  player.style.display = "block";
+  player.style.width = "560px";
+  player.style.height = "315px";
+}
   </script>
 </body>
 </html>
