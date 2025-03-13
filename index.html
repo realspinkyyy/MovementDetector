@@ -1,9 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta charset="UTF-8">
   <title>Zoom Camera</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon.png">
   <style>
     html, body {
       margin: 0;
@@ -20,8 +25,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background-color: #000;
-      overflow: hidden;
     }
 
     video {
@@ -32,19 +35,11 @@
       object-fit: cover;
     }
 
-    #zoomControls {
+    #zoomSlider {
       position: absolute;
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      z-index: 10;
-    }
-
-    #zoomSlider {
       width: 300px;
       height: 5px;
       background: rgba(255, 255, 255, 0.1);
@@ -62,7 +57,11 @@
       cursor: pointer;
     }
 
-    #zoomLabel {
+    #zoomValue {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
       color: white;
       font-size: 16px;
       background: rgba(0, 0, 0, 0.5);
@@ -70,57 +69,35 @@
       border-radius: 6px;
     }
 
-    #zoomInput {
-      width: 60px;
-      text-align: center;
-      padding: 4px;
-      font-size: 14px;
-      border: none;
-      border-radius: 6px;
-    }
-
     #captureBtn {
       position: absolute;
-      bottom: 130px;
+      bottom: 100px;
       left: 50%;
       transform: translateX(-50%);
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 8px;
-      background-color: #00ff88;
-      color: black;
-      border: none;
-      cursor: pointer;
-      z-index: 10;
+      width: 60px;
+      height: 60px;
+      background: white;
+      border-radius: 50%;
+      border: 4px solid #00ff88;
     }
   </style>
 </head>
 <body>
   <div id="container">
     <video id="camera" autoplay playsinline></video>
-
-    <div id="zoomControls">
-      <div id="zoomLabel">Zoom: 1.0×</div>
-      <input type="range" id="zoomSlider" min="1" max="10" step="0.1" value="1">
-      <input type="number" id="zoomInput" min="1" max="10" step="0.1" value="1">
-    </div>
-
-    <button id="captureBtn">Take Photo</button>
-    <canvas id="snapshot" style="display: none;"></canvas>
-    <a id="downloadLink" download="photo.jpg" style="display: none;"></a>
+    <input type="range" id="zoomSlider" min="1" max="5" step="0.1" value="1">
+    <div id="zoomValue">Zoom: 1×</div>
+    <button id="captureBtn"></button>
   </div>
 
   <script>
     const video = document.getElementById('camera');
     const zoomSlider = document.getElementById('zoomSlider');
-    const zoomLabel = document.getElementById('zoomLabel');
-    const zoomInput = document.getElementById('zoomInput');
+    const zoomValue = document.getElementById('zoomValue');
     const captureBtn = document.getElementById('captureBtn');
-    const snapshotCanvas = document.getElementById('snapshot');
-    const downloadLink = document.getElementById('downloadLink');
-
     let currentZoom = 1;
 
+    // Start camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
       .then(stream => {
         video.srcObject = stream;
@@ -130,23 +107,14 @@
         console.error(err);
       });
 
-    function updateZoomUI(value) {
-      currentZoom = parseFloat(value);
+    function updateZoom() {
       video.style.transform = `scale(${currentZoom})`;
-      zoomLabel.textContent = `Zoom: ${currentZoom.toFixed(1)}×`;
-      zoomSlider.value = currentZoom;
-      zoomInput.value = currentZoom;
+      zoomValue.textContent = `Zoom: ${currentZoom}×`;
     }
 
     zoomSlider.addEventListener('input', () => {
-      updateZoomUI(zoomSlider.value);
-    });
-
-    zoomInput.addEventListener('change', () => {
-      let val = parseFloat(zoomInput.value);
-      if (isNaN(val)) val = 1;
-      val = Math.min(10, Math.max(1, val));
-      updateZoomUI(val);
+      currentZoom = parseFloat(zoomSlider.value);
+      updateZoom();
     });
 
     // Pinch-to-zoom
@@ -164,8 +132,9 @@
       if (e.touches.length === 2 && initialDistance) {
         const newDistance = getDistance(e.touches[0], e.touches[1]);
         const zoomFactor = newDistance / initialDistance;
-        const newZoom = Math.min(10, Math.max(1, initialZoom * zoomFactor));
-        updateZoomUI(newZoom);
+        currentZoom = Math.min(5, Math.max(1, initialZoom * zoomFactor));
+        zoomSlider.value = currentZoom;
+        updateZoom();
       }
     });
 
@@ -175,18 +144,18 @@
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    // Take photo
+    // Take photo and auto-download
     captureBtn.addEventListener('click', () => {
-      const context = snapshotCanvas.getContext('2d');
-      snapshotCanvas.width = video.videoWidth;
-      snapshotCanvas.height = video.videoHeight;
-      context.drawImage(video, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
-
-      snapshotCanvas.toBlob(blob => {
-        const url = URL.createObjectURL(blob);
-        downloadLink.href = url;
-        downloadLink.click();
-        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const canvas = document.createElement('canvas');
+      canvas.width = video.videoWidth;
+      canvas.height = video.videoHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      canvas.toBlob(blob => {
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = 'photo.jpg';
+        link.click();
       }, 'image/jpeg');
     });
   </script>
