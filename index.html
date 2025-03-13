@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>Zoom Camera</title>
   <style>
     html, body {
@@ -130,7 +131,6 @@
     let initialDistance = null;
     let initialZoom = 1;
 
-    // Ensure that touch events are correctly detected on mobile
     video.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
         initialDistance = getDistance(e.touches[0], e.touches[1]);
