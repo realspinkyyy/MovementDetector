@@ -1,274 +1,250 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Mini Piano Studio</title>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Piano App</title>
   <style>
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      background: #111;
-      color: white;
-      font-family: 'Segoe UI', sans-serif;
+      font-family: Arial, sans-serif;
+      background-color: #212121;
+      color: #fff;
       display: flex;
       flex-direction: column;
-      height: 100%;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: 10px 20px;
-      background: #222;
+      justify-content: center;
+      height: 100vh;
     }
 
-    .header h1 {
-      font-size: 20px;
-      margin: 0;
-    }
-
-    #settingsBtn {
-      background: #00ff88;
-      border: none;
-      padding: 6px 12px;
-      color: black;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    #settingsPanel {
-      display: none;
-      background: #222;
-      padding: 15px;
-      border-top: 2px solid #00ff88;
-    }
-
-    .section {
-      margin-bottom: 10px;
-    }
-
-    .section label {
-      display: block;
-      margin-bottom: 4px;
-      font-weight: 600;
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
     }
 
     .piano {
       display: flex;
-      justify-content: center;
-      flex-wrap: nowrap;
-      position: relative;
-      height: 200px;
-      user-select: none;
+      align-items: center;
     }
 
-    .key {
-      width: 50px;
-      height: 100%;
-      background: white;
-      border: 1px solid #ccc;
-      margin: 0 1px;
-      box-shadow: 0 2px 3px rgba(0,0,0,0.4);
+    .white-key {
+      width: 60px;
+      height: 300px;
+      background-color: white;
+      border: 1px solid #bbb;
+      margin: 0;
       position: relative;
       z-index: 1;
     }
 
-    .key.black {
-      width: 30px;
-      height: 130px;
-      background: black;
+    .black-key {
+      width: 40px;
+      height: 200px;
+      background-color: black;
       position: absolute;
-      margin: 0;
-      z-index: 2;
+      left: 0;
       top: 0;
-    }
-
-    .key.active {
-      background: #00ff88 !important;
+      z-index: 2;
+      margin-left: -20px;
     }
 
     .controls {
+      margin-top: 20px;
       display: flex;
-      gap: 20px;
-      padding: 10px 20px;
-      align-items: center;
-      background: #111;
+      justify-content: space-around;
+      width: 80%;
     }
 
-    select, input[type="range"] {
-      padding: 5px;
-      font-size: 16px;
-      border-radius: 5px;
-      border: none;
+    .drum-pad {
+      width: 50px;
+      height: 50px;
+      background-color: #00ff88;
+      margin: 5px;
+      border-radius: 8px;
+      border: 2px solid #fff;
+      cursor: pointer;
     }
 
-    #console {
-      background: #000;
-      color: #00ff88;
-      font-family: monospace;
-      font-size: 14px;
+    .slider {
+      width: 200px;
+    }
+
+    .settings-panel {
+      margin-top: 20px;
+      background-color: rgba(0, 0, 0, 0.7);
       padding: 10px;
-      max-height: 120px;
-      overflow-y: auto;
-      border-radius: 6px;
+      border-radius: 8px;
+    }
+
+    .console {
+      background-color: #333;
+      color: #fff;
+      height: 150px;
+      width: 400px;
+      padding: 10px;
+      overflow-y: scroll;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .btn {
+      background-color: #00ff88;
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn:hover {
+      background-color: #00cc66;
+    }
+
+    .debug {
+      font-size: 12px;
+      color: #bbb;
     }
   </style>
 </head>
 <body>
-  <div class="header">
-    <h1>Mini Piano Studio</h1>
-    <button id="settingsBtn">Settings</button>
+
+  <h1>Piano Web App</h1>
+
+  <!-- Piano Keys -->
+  <div class="piano">
+    <!-- White keys -->
+    <div class="white-key" id="C"></div>
+    <div class="black-key" id="C-sharp"></div>
+    <div class="white-key" id="D"></div>
+    <div class="black-key" id="D-sharp"></div>
+    <div class="white-key" id="E"></div>
+    <div class="white-key" id="F"></div>
+    <div class="black-key" id="F-sharp"></div>
+    <div class="white-key" id="G"></div>
+    <div class="black-key" id="G-sharp"></div>
+    <div class="white-key" id="A"></div>
+    <div class="black-key" id="A-sharp"></div>
+    <div class="white-key" id="B"></div>
+    <div class="white-key" id="C2"></div>
   </div>
 
-  <div id="settingsPanel">
-    <div class="section">
-      <label>Pitch</label>
-      <input type="range" id="pitchSlider" min="0.5" max="2" step="0.01" value="1">
-    </div>
-    <div class="section">
-      <label>Voice</label>
-      <select id="voiceSelect"></select>
-    </div>
-    <div class="section">
-      <label>Debug Console</label>
-      <div id="console">Console initialized...</div>
-    </div>
-  </div>
-
-  <div class="piano" id="piano"></div>
-
+  <!-- Controls: Pitch Slider and Voice Selection -->
   <div class="controls">
-    <label>Pitch: <span id="pitchValue">1.0×</span></label>
+    <input type="range" class="slider" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
+    <div>
+      <select id="voiceSelect">
+        <option value="piano">Piano</option>
+        <option value="guitar">Guitar</option>
+        <option value="violin">Violin</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- Drum Pads -->
+  <div>
+    <h3>Drum Pads</h3>
+    <div id="drumPads">
+      <div class="drum-pad" data-sound="drum1"></div>
+      <div class="drum-pad" data-sound="drum2"></div>
+      <div class="drum-pad" data-sound="drum3"></div>
+    </div>
+  </div>
+
+  <!-- Settings and Debug Console -->
+  <div class="settings-panel">
+    <h3>Settings</h3>
+    <div>
+      <button class="btn" onclick="toggleConsole()">Show/Hide Debug Console</button>
+    </div>
+    <div id="console" class="console" style="display: none;"></div>
   </div>
 
   <script>
-    const notes = [
-      { note: "C", key: "C" },
-      { note: "C#", key: "C#", black: true, offset: 35 },
-      { note: "D", key: "D" },
-      { note: "D#", key: "D#", black: true, offset: 85 },
-      { note: "E", key: "E" },
-      { note: "F", key: "F" },
-      { note: "F#", key: "F#", black: true, offset: 185 },
-      { note: "G", key: "G" },
-      { note: "G#", key: "G#", black: true, offset: 235 },
-      { note: "A", key: "A" },
-      { note: "A#", key: "A#", black: true, offset: 285 },
-      { note: "B", key: "B" },
-      { note: "C2", key: "C2" }
-    ];
+    const pitchSlider = document.getElementById('pitchSlider');
+    const voiceSelect = document.getElementById('voiceSelect');
+    const drumPads = document.querySelectorAll('.drum-pad');
+    const consoleElement = document.getElementById('console');
+    
+    const keys = document.querySelectorAll('.white-key, .black-key');
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    let currentVoice = 'piano';
 
-    const synth = window.speechSynthesis;
-    const ctx = new (window.AudioContext || window.webkitAudioContext)();
-    let currentPitch = 1;
-    let currentVoice = null;
+    const notes = {
+      'C': 'C',
+      'C-sharp': 'C#',
+      'D': 'D',
+      'D-sharp': 'D#',
+      'E': 'E',
+      'F': 'F',
+      'F-sharp': 'F#',
+      'G': 'G',
+      'G-sharp': 'G#',
+      'A': 'A',
+      'A-sharp': 'A#',
+      'B': 'B',
+      'C2': 'C2'
+    };
 
-    const pianoEl = document.getElementById("piano");
-    const pitchSlider = document.getElementById("pitchSlider");
-    const pitchValue = document.getElementById("pitchValue");
-    const settingsBtn = document.getElementById("settingsBtn");
-    const settingsPanel = document.getElementById("settingsPanel");
-    const consoleEl = document.getElementById("console");
-    const voiceSelect = document.getElementById("voiceSelect");
-
-    // Create keys
-    notes.forEach((n, i) => {
-      if (n.black) return;
-      const key = document.createElement("div");
-      key.className = "key";
-      key.dataset.note = n.note;
-      pianoEl.appendChild(key);
-    });
-
-    // Add black keys manually
-    notes.forEach(n => {
-      if (n.black) {
-        const key = document.createElement("div");
-        key.className = "key black";
-        key.dataset.note = n.note;
-        key.style.left = n.offset + "px";
-        pianoEl.appendChild(key);
-      }
-    });
-
-    function playNote(note) {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      const freq = getFrequency(note);
-      osc.frequency.setValueAtTime(freq * currentPitch, ctx.currentTime);
-      osc.type = "sine";
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      gain.gain.setValueAtTime(0.3, ctx.currentTime);
-      osc.start();
-      osc.stop(ctx.currentTime + 1);
-      log(`Playing ${note} at pitch ${currentPitch}`);
+    function playSound(note) {
+      console.log(`${note} is working`);
+      const oscillator = audioContext.createOscillator();
+      oscillator.type = 'sine';
+      oscillator.frequency.setValueAtTime(getFrequency(note), audioContext.currentTime);
+      oscillator.connect(audioContext.destination);
+      oscillator.start();
+      oscillator.stop(audioContext.currentTime + 0.5);
     }
 
     function getFrequency(note) {
       const frequencies = {
-        "C": 261.63, "C#": 277.18, "D": 293.66, "D#": 311.13,
-        "E": 329.63, "F": 349.23, "F#": 369.99, "G": 392.00,
-        "G#": 415.30, "A": 440.00, "A#": 466.16, "B": 493.88,
-        "C2": 523.25
+        'C': 261.63,
+        'C#': 277.18,
+        'D': 293.66,
+        'D#': 311.13,
+        'E': 329.63,
+        'F': 349.23,
+        'F#': 369.99,
+        'G': 392.00,
+        'G#': 415.30,
+        'A': 440.00,
+        'A#': 466.16,
+        'B': 493.88,
+        'C2': 523.25
       };
       return frequencies[note];
     }
 
-    function log(msg) {
-      consoleEl.innerHTML += `<div>> ${msg}</div>`;
-      consoleEl.scrollTop = consoleEl.scrollHeight;
+    function changePitch() {
+      console.log(`Pitch changed to: ${pitchSlider.value}`);
     }
 
-    pianoEl.addEventListener("mousedown", e => {
-      if (e.target.classList.contains("key")) {
-        e.target.classList.add("active");
-        playNote(e.target.dataset.note);
-      }
-    });
+    function changeVoice() {
+      currentVoice = voiceSelect.value;
+      console.log(`Voice changed to: ${currentVoice}`);
+    }
 
-    pianoEl.addEventListener("mouseup", e => {
-      if (e.target.classList.contains("key")) {
-        e.target.classList.remove("active");
-      }
-    });
+    function toggleConsole() {
+      const currentDisplay = consoleElement.style.display;
+      consoleElement.style.display = currentDisplay === 'none' ? 'block' : 'none';
+    }
 
-    pitchSlider.addEventListener("input", () => {
-      currentPitch = parseFloat(pitchSlider.value);
-      pitchValue.textContent = currentPitch.toFixed(2) + "×";
-      log("Pitch slider is working");
-    });
-
-    settingsBtn.addEventListener("click", () => {
-      settingsPanel.style.display = settingsPanel.style.display === "block" ? "none" : "block";
-    });
-
-    // Load voices
-    function populateVoices() {
-      const voices = synth.getVoices();
-      voiceSelect.innerHTML = '';
-      voices.forEach(v => {
-        const opt = document.createElement("option");
-        opt.value = v.name;
-        opt.textContent = v.name;
-        voiceSelect.appendChild(opt);
+    keys.forEach(key => {
+      key.addEventListener('click', () => {
+        const note = key.id;
+        playSound(note);
       });
-      log("Voices loaded");
-    }
-
-    voiceSelect.addEventListener("change", () => {
-      currentVoice = synth.getVoices().find(v => v.name === voiceSelect.value);
-      log("Voice changed to " + currentVoice.name);
     });
 
-    if (synth.onvoiceschanged !== undefined) {
-      synth.onvoiceschanged = populateVoices;
-    } else {
-      populateVoices();
-    }
+    pitchSlider.addEventListener('input', changePitch);
+    voiceSelect.addEventListener('change', changeVoice);
+
+    // Drum Pads
+    drumPads.forEach(pad => {
+      pad.addEventListener('click', () => {
+        const sound = pad.dataset.sound;
+        console.log(`${sound} drum pad is triggered`);
+      });
+    });
   </script>
 </body>
 </html>
