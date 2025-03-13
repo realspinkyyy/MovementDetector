@@ -1,14 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Zoom Camera</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <style>
     html, body {
       margin: 0;
-      padding: 0;
-      height: 100dvh;
+      height: 100%;
       background: #000;
       font-family: Arial, sans-serif;
       overflow: hidden;
@@ -17,7 +16,7 @@
     #container {
       position: relative;
       width: 100vw;
-      height: 100dvh;
+      height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -28,7 +27,6 @@
     video {
       transform-origin: center center;
       transition: transform 0.2s ease;
-      max-width: none;
       width: 100%;
       height: 100%;
       object-fit: cover;
@@ -58,7 +56,7 @@
 
     #zoomValue {
       position: absolute;
-      bottom: 70px;
+      bottom: 60px;
       left: 50%;
       transform: translateX(-50%);
       color: white;
@@ -68,43 +66,41 @@
       border-radius: 6px;
     }
 
-    #zoomInput {
+    #captureBtn {
       position: absolute;
-      bottom: 110px;
+      bottom: 100px;
       left: 50%;
       transform: translateX(-50%);
+      padding: 10px 20px;
       font-size: 16px;
-      padding: 6px 10px;
-      border-radius: 5px;
+      border-radius: 8px;
+      background-color: #00ff88;
+      color: black;
       border: none;
-      outline: none;
-      width: 80px;
-      text-align: center;
+      cursor: pointer;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
   <div id="container">
     <video id="camera" autoplay playsinline></video>
-    <input type="range" id="zoomSlider" min="1" max="100" value="1" step="0.1">
+    <input type="range" id="zoomSlider" min="1" max="10" step="0.1" value="1">
     <div id="zoomValue">Zoom: 1×</div>
-    <input id="zoomInput" type="number" min="1" max="100" step="0.1" placeholder="Zoom">
+    <button id="captureBtn">Take Photo</button>
+    <canvas id="snapshot" style="display: none;"></canvas>
+    <a id="downloadLink" download="photo.jpg" style="display: none;"></a>
   </div>
 
   <script>
     const video = document.getElementById('camera');
     const zoomSlider = document.getElementById('zoomSlider');
     const zoomValue = document.getElementById('zoomValue');
-    const zoomInput = document.getElementById('zoomInput');
-    let currentZoom = 1;
+    const captureBtn = document.getElementById('captureBtn');
+    const snapshotCanvas = document.getElementById('snapshot');
+    const downloadLink = document.getElementById('downloadLink');
 
-    // Resize fix for phones
-    function setFullHeight() {
-      document.getElementById('container').style.height = window.innerHeight + 'px';
-    }
-    window.addEventListener('resize', setFullHeight);
-    window.addEventListener('orientationchange', setFullHeight);
-    setFullHeight();
+    let currentZoom = 1;
 
     // Start camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
@@ -116,29 +112,18 @@
         console.error(err);
       });
 
-    function updateZoom() {
-      video.style.transform = `scale(${currentZoom})`;
-      zoomValue.textContent = `Zoom: ${parseFloat(currentZoom).toFixed(1)}×`;
-      zoomSlider.value = currentZoom;
-      zoomInput.value = parseFloat(currentZoom).toFixed(1);
-    }
-
+    // Zoom via slider
     zoomSlider.addEventListener('input', () => {
       currentZoom = zoomSlider.value;
       updateZoom();
     });
 
-    zoomInput.addEventListener('change', () => {
-      const val = parseFloat(zoomInput.value);
-      if (!isNaN(val) && val >= 1 && val <= 100) {
-        currentZoom = val;
-        updateZoom();
-      } else {
-        zoomInput.value = currentZoom;
-      }
-    });
+    function updateZoom() {
+      video.style.transform = `scale(${currentZoom})`;
+      zoomValue.textContent = `Zoom: ${parseFloat(currentZoom).toFixed(1)}×`;
+    }
 
-    // Pinch to zoom
+    // Pinch-to-zoom
     let initialDistance = null;
     let initialZoom = 1;
 
@@ -153,7 +138,8 @@
       if (e.touches.length === 2 && initialDistance) {
         const newDistance = getDistance(e.touches[0], e.touches[1]);
         const zoomFactor = newDistance / initialDistance;
-        currentZoom = Math.min(100, Math.max(1, initialZoom * zoomFactor));
+        currentZoom = Math.min(10, Math.max(1, initialZoom * zoomFactor));
+        zoomSlider.value = currentZoom;
         updateZoom();
       }
     });
@@ -164,8 +150,20 @@
       return Math.sqrt(dx * dx + dy * dy);
     }
 
-    // Initialize zoom UI
-    updateZoom();
+    // Take photo
+    captureBtn.addEventListener('click', () => {
+      const context = snapshotCanvas.getContext('2d');
+      snapshotCanvas.width = video.videoWidth;
+      snapshotCanvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+
+      snapshotCanvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/jpeg');
+    });
   </script>
 </body>
 </html>
