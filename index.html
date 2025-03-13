@@ -1,194 +1,129 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Motion Detector</title>
+  <meta charset="UTF-8">
+  <title>Zoom Camera</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
     html, body {
-      width: 100%;
+      margin: 0;
       height: 100%;
-      background: #0f0f0f;
-      font-family: 'Segoe UI', sans-serif;
+      background: #000;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
     }
 
     #container {
       position: relative;
       width: 100vw;
       height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #000;
       overflow: hidden;
     }
 
     video {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      filter: brightness(0.9);
+      transform-origin: center center;
+      transition: transform 0.2s ease;
+      max-width: none;
     }
 
-    #settingsIcon {
+    #zoomSlider {
       position: absolute;
-      top: 20px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.15);
-      border: none;
-      font-size: 22px;
-      color: white;
-      padding: 10px;
-      border-radius: 50%;
-      backdrop-filter: blur(8px);
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    #settings {
-      position: absolute;
-      top: 70px;
-      right: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      padding: 15px;
-      border-radius: 12px;
-      color: white;
-      backdrop-filter: blur(10px);
-      display: none;
-      z-index: 10;
-      width: 220px;
-    }
-
-    #settings label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: bold;
-    }
-
-    #canvas {
-      display: none;
-    }
-
-    #player {
-      position: absolute;
-      top: 50%;
+      bottom: 30px;
       left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 5;
-      display: none;
-      width: 0;
-      height: 0;
+      transform: translateX(-50%);
+      width: 300px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      -webkit-appearance: none;
+    }
+
+    #zoomSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #00ff88;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+
+    #zoomValue {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: white;
+      font-size: 16px;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 4px 10px;
+      border-radius: 6px;
     }
   </style>
 </head>
 <body>
   <div id="container">
-    <video id="video" autoplay muted playsinline></video>
-    <canvas id="canvas"></canvas>
-
-    <button id="settingsIcon">⚙️</button>
-    <div id="settings">
-      <label>YouTube Alarm URL:</label>
-      <input type="text" id="youtubeUrl" value="https://www.youtube.com/embed/2vjPBrBU-TM?autoplay=1" style="width: 100%; padding: 5px; border-radius: 5px; border: none;">
-    </div>
-
-    <iframe id="player" frameborder="0" allow="autoplay"></iframe>
+    <video id="camera" autoplay playsinline></video>
+    <input type="range" id="zoomSlider" min="1" max="100" value="1">
+    <div id="zoomValue">Zoom: 1×</div>
   </div>
 
   <script>
-    const video = document.getElementById("video");
-    const canvas = document.getElementById("canvas");
-    const ctx = canvas.getContext("2d");
-    const settingsBtn = document.getElementById("settingsIcon");
-    const settingsPanel = document.getElementById("settings");
-    const youtubeUrlInput = document.getElementById("youtubeUrl");
-    const player = document.getElementById("player");
+    const video = document.getElementById('camera');
+    const zoomSlider = document.getElementById('zoomSlider');
+    const zoomValue = document.getElementById('zoomValue');
+    let currentZoom = 1;
 
-    let previousFrame = null;
-    let motionDetected = false;
-    let motionTimeout = null;
+    // Start camera
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
+      .then(stream => {
+        video.srcObject = stream;
+      })
+      .catch(err => {
+        alert('Error accessing camera: ' + err.message);
+        console.error(err);
+      });
 
-    // Toggle settings panel
-    settingsBtn.addEventListener("click", () => {
-      settingsPanel.style.display = settingsPanel.style.display === "none" ? "block" : "none";
+    // Zoom via slider
+    zoomSlider.addEventListener('input', () => {
+      currentZoom = zoomSlider.value;
+      updateZoom();
     });
 
-    // Open camera
-    navigator.mediaDevices.getUserMedia({ video: true }).then(stream => {
-      video.srcObject = stream;
-      video.play();
-      detectMotion();
-    }).catch(err => {
-      alert("Camera access denied or failed.");
-      console.error(err);
-    });
-
-    function detectMotion() {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-
-      setInterval(() => {
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        const current = ctx.getImageData(0, 0, canvas.width, canvas.height);
-
-        if (previousFrame) {
-          let diff = 0;
-          for (let i = 0; i < current.data.length; i += 4) {
-            const avgNow = (current.data[i] + current.data[i+1] + current.data[i+2]) / 3;
-            const avgPrev = (previousFrame.data[i] + previousFrame.data[i+1] + previousFrame.data[i+2]) / 3;
-            if (Math.abs(avgNow - avgPrev) > 25) diff++;
-          }
-
-          if (diff > 10000) {
-            if (!motionDetected) {
-              motionDetected = true;
-              playAlarm();
-            }
-            clearTimeout(motionTimeout);
-            motionTimeout = setTimeout(() => {
-              motionDetected = false;
-              setTimeout(stopAlarm, 2000);
-            }, 200);
-          }
-        }
-
-        previousFrame = current;
-      }, 150);
+    function updateZoom() {
+      video.style.transform = `scale(${currentZoom})`;
+      zoomValue.textContent = `Zoom: ${currentZoom}×`;
     }
 
-function playAlarm() {
-  let url = youtubeUrlInput.value.trim();
-  let videoId = "";
+    // Optional: Pinch-to-zoom for touchscreens
+    let initialDistance = null;
+    let initialZoom = 1;
 
-  // Handle youtu.be links
-  if (url.includes("youtu.be")) {
-    videoId = url.split("youtu.be/")[1].split(/[?&]/)[0];
-  }
-  // Handle regular YouTube links
-  else if (url.includes("watch?v=")) {
-    videoId = url.split("watch?v=")[1].split(/[?&]/)[0];
-  }
-  // Handle already-embed URLs
-  else if (url.includes("embed")) {
-    player.src = url + "&autoplay=1&mute=0";
-    showPlayer();
-    return;
-  }
+    video.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        initialDistance = getDistance(e.touches[0], e.touches[1]);
+        initialZoom = currentZoom;
+      }
+    });
 
-  if (videoId) {
-    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0`;
-    showPlayer();
-  } else {
-    alert("Invalid YouTube URL");
-  }
-}
+    video.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2 && initialDistance) {
+        const newDistance = getDistance(e.touches[0], e.touches[1]);
+        const zoomFactor = newDistance / initialDistance;
+        currentZoom = Math.min(100, Math.max(1, initialZoom * zoomFactor));
+        zoomSlider.value = currentZoom;
+        updateZoom();
+      }
+    });
 
-function showPlayer() {
-  player.style.display = "block";
-  player.style.width = "560px";
-  player.style.height = "315px";
-}
+    function getDistance(touch1, touch2) {
+      const dx = touch2.clientX - touch1.clientX;
+      const dy = touch2.clientY - touch1.clientY;
+      return Math.sqrt(dx * dx + dy * dy);
+    }
   </script>
 </body>
 </html>
