@@ -114,7 +114,12 @@
       });
 
     const updateZoom = (zoom) => {
-      currentZoom = Math.max(0.1, Math.min(100, zoom));
+      // Validate and constrain the zoom level
+      if (isNaN(zoom) || zoom < 0.1 || zoom > 100) {
+        console.error("Invalid zoom value:", zoom);
+        return;
+      }
+      currentZoom = zoom;
       video.style.transform = `scale(${currentZoom})`;
       zoomValue.textContent = `${currentZoom.toFixed(1)}×`;
       const percent = (100 - currentZoom) / 99.9;
@@ -176,9 +181,14 @@
     zoomValue.addEventListener('click', () => {
       const zoomInput = prompt('Enter zoom percentage (e.g., 100 for 100%)', `${currentZoom.toFixed(1)}`);
       const zoomPercent = parseFloat(zoomInput);
-      if (!isNaN(zoomPercent) && zoomPercent >= 0.1 && zoomPercent <= 100) {
-        updateZoom(zoomPercent);
+
+      // Validate the input zoom percentage
+      if (isNaN(zoomPercent) || zoomPercent < 0.1 || zoomPercent > 100) {
+        alert("Please enter a valid zoom value between 0.1 and 100.");
+        return;
       }
+
+      updateZoom(zoomPercent);
     });
   </script>
 
