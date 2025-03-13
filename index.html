@@ -100,6 +100,8 @@
     let currentZoom = 1;
     let isDragging = false;
     let startDragY = 0;
+    let initialTouchDistance = 0;
+    let initialZoom = 1;
 
     // Start camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
@@ -152,6 +154,22 @@
     document.addEventListener('mouseup', () => {
       isDragging = false;
       document.body.style.userSelect = '';  // Re-enable text selection
+    });
+
+    // Pinch to zoom (touch events)
+    zoomTrack.addEventListener('touchstart', (e) => {
+      if (e.touches.length === 2) {
+        initialTouchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        initialZoom = currentZoom;
+      }
+    });
+
+    zoomTrack.addEventListener('touchmove', (e) => {
+      if (e.touches.length === 2) {
+        const currentTouchDistance = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY);
+        const zoomChange = (currentTouchDistance / initialTouchDistance) * initialZoom;
+        updateZoom(zoomChange);
+      }
     });
 
     // Click to zoom input
