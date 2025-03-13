@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Zoom Camera</title>
   <style>
     html, body {
@@ -26,14 +27,24 @@
     video {
       transform-origin: center center;
       transition: transform 0.2s ease;
-      max-width: none;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
 
-    #zoomSlider {
+    #zoomControls {
       position: absolute;
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    #zoomSlider {
       width: 300px;
       height: 5px;
       background: rgba(255, 255, 255, 0.1);
@@ -51,11 +62,7 @@
       cursor: pointer;
     }
 
-    #zoomValue {
-      position: absolute;
-      bottom: 60px;
-      left: 50%;
-      transform: translateX(-50%);
+    #zoomLabel {
       color: white;
       font-size: 16px;
       background: rgba(0, 0, 0, 0.5);
@@ -64,35 +71,56 @@
     }
 
     #zoomInput {
+      width: 60px;
+      text-align: center;
+      padding: 4px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+    }
+
+    #captureBtn {
       position: absolute;
-      bottom: 90px;
+      bottom: 130px;
       left: 50%;
       transform: translateX(-50%);
-      color: white;
-      background: rgba(0, 0, 0, 0.5);
-      padding: 4px 10px;
-      border-radius: 6px;
+      padding: 10px 20px;
       font-size: 16px;
-      width: 80px;
+      border-radius: 8px;
+      background-color: #00ff88;
+      color: black;
+      border: none;
+      cursor: pointer;
+      z-index: 10;
     }
   </style>
 </head>
 <body>
   <div id="container">
     <video id="camera" autoplay playsinline></video>
-    <input type="range" id="zoomSlider" min="1" max="100" value="1">
-    <div id="zoomValue">Zoom: 1×</div>
-    <input type="number" id="zoomInput" value="1" min="1" max="100">
+
+    <div id="zoomControls">
+      <div id="zoomLabel">Zoom: 1.0×</div>
+      <input type="range" id="zoomSlider" min="1" max="10" step="0.1" value="1">
+      <input type="number" id="zoomInput" min="1" max="10" step="0.1" value="1">
+    </div>
+
+    <button id="captureBtn">Take Photo</button>
+    <canvas id="snapshot" style="display: none;"></canvas>
+    <a id="downloadLink" download="photo.jpg" style="display: none;"></a>
   </div>
 
   <script>
     const video = document.getElementById('camera');
     const zoomSlider = document.getElementById('zoomSlider');
-    const zoomValue = document.getElementById('zoomValue');
+    const zoomLabel = document.getElementById('zoomLabel');
     const zoomInput = document.getElementById('zoomInput');
+    const captureBtn = document.getElementById('captureBtn');
+    const snapshotCanvas = document.getElementById('snapshot');
+    const downloadLink = document.getElementById('downloadLink');
+
     let currentZoom = 1;
 
-    // Start camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
       .then(stream => {
         video.srcObject = stream;
@@ -102,40 +130,33 @@
         console.error(err);
       });
 
-    // Zoom via slider
-    zoomSlider.addEventListener('input', () => {
-      currentZoom = zoomSlider.value;
-      updateZoom();
-    });
-
-    // Zoom via input field
-    zoomInput.addEventListener('change', () => {
-      let zoomValue = parseFloat(zoomInput.value);
-      if (zoomValue >= 1 && zoomValue <= 100) {
-        currentZoom = zoomValue;
-        zoomSlider.value = currentZoom;
-        updateZoom();
-      } else {
-        zoomInput.value = currentZoom;
-      }
-    });
-
-    function updateZoom() {
+    function updateZoomUI(value) {
+      currentZoom = parseFloat(value);
       video.style.transform = `scale(${currentZoom})`;
-      zoomValue.textContent = `Zoom: ${currentZoom}×`;
+      zoomLabel.textContent = `Zoom: ${currentZoom.toFixed(1)}×`;
+      zoomSlider.value = currentZoom;
       zoomInput.value = currentZoom;
     }
 
-    // Optional: Pinch-to-zoom for touchscreens
+    zoomSlider.addEventListener('input', () => {
+      updateZoomUI(zoomSlider.value);
+    });
+
+    zoomInput.addEventListener('change', () => {
+      let val = parseFloat(zoomInput.value);
+      if (isNaN(val)) val = 1;
+      val = Math.min(10, Math.max(1, val));
+      updateZoomUI(val);
+    });
+
+    // Pinch-to-zoom
     let initialDistance = null;
     let initialZoom = 1;
 
-    // Ensure that touch events are correctly detected on mobile
     video.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
         initialDistance = getDistance(e.touches[0], e.touches[1]);
         initialZoom = currentZoom;
-        e.preventDefault(); // Prevents scrolling
       }
     });
 
@@ -143,10 +164,8 @@
       if (e.touches.length === 2 && initialDistance) {
         const newDistance = getDistance(e.touches[0], e.touches[1]);
         const zoomFactor = newDistance / initialDistance;
-        currentZoom = Math.min(100, Math.max(1, initialZoom * zoomFactor));
-        zoomSlider.value = currentZoom;
-        updateZoom();
-        e.preventDefault(); // Prevents scrolling
+        const newZoom = Math.min(10, Math.max(1, initialZoom * zoomFactor));
+        updateZoomUI(newZoom);
       }
     });
 
@@ -155,6 +174,21 @@
       const dy = touch2.clientY - touch1.clientY;
       return Math.sqrt(dx * dx + dy * dy);
     }
+
+    // Take photo
+    captureBtn.addEventListener('click', () => {
+      const context = snapshotCanvas.getContext('2d');
+      snapshotCanvas.width = video.videoWidth;
+      snapshotCanvas.height = video.videoHeight;
+      context.drawImage(video, 0, 0, snapshotCanvas.width, snapshotCanvas.height);
+
+      snapshotCanvas.toBlob(blob => {
+        const url = URL.createObjectURL(blob);
+        downloadLink.href = url;
+        downloadLink.click();
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }, 'image/jpeg');
+    });
   </script>
 </body>
 </html>
