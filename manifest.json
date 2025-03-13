@@ -1,6 +1,6 @@
 {
-  "name": "Zoom Cam",
-  "short_name": "ZoomCam",
+  "name": "Zoom Camera",
+  "short_name": "Camera",
   "start_url": "./",
   "display": "standalone",
   "background_color": "#000000",
