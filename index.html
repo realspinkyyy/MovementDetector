@@ -32,11 +32,19 @@
       object-fit: cover;
     }
 
-    #zoomSlider {
+    #zoomControls {
       position: absolute;
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+
+    #zoomSlider {
       width: 300px;
       height: 5px;
       background: rgba(255, 255, 255, 0.1);
@@ -54,11 +62,7 @@
       cursor: pointer;
     }
 
-    #zoomValue {
-      position: absolute;
-      bottom: 60px;
-      left: 50%;
-      transform: translateX(-50%);
+    #zoomLabel {
       color: white;
       font-size: 16px;
       background: rgba(0, 0, 0, 0.5);
@@ -66,9 +70,18 @@
       border-radius: 6px;
     }
 
+    #zoomInput {
+      width: 60px;
+      text-align: center;
+      padding: 4px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+    }
+
     #captureBtn {
       position: absolute;
-      bottom: 100px;
+      bottom: 130px;
       left: 50%;
       transform: translateX(-50%);
       padding: 10px 20px;
@@ -85,8 +98,13 @@
 <body>
   <div id="container">
     <video id="camera" autoplay playsinline></video>
-    <input type="range" id="zoomSlider" min="1" max="10" step="0.1" value="1">
-    <div id="zoomValue">Zoom: 1×</div>
+
+    <div id="zoomControls">
+      <div id="zoomLabel">Zoom: 1.0×</div>
+      <input type="range" id="zoomSlider" min="1" max="10" step="0.1" value="1">
+      <input type="number" id="zoomInput" min="1" max="10" step="0.1" value="1">
+    </div>
+
     <button id="captureBtn">Take Photo</button>
     <canvas id="snapshot" style="display: none;"></canvas>
     <a id="downloadLink" download="photo.jpg" style="display: none;"></a>
@@ -95,14 +113,14 @@
   <script>
     const video = document.getElementById('camera');
     const zoomSlider = document.getElementById('zoomSlider');
-    const zoomValue = document.getElementById('zoomValue');
+    const zoomLabel = document.getElementById('zoomLabel');
+    const zoomInput = document.getElementById('zoomInput');
     const captureBtn = document.getElementById('captureBtn');
     const snapshotCanvas = document.getElementById('snapshot');
     const downloadLink = document.getElementById('downloadLink');
 
     let currentZoom = 1;
 
-    // Start camera
     navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
       .then(stream => {
         video.srcObject = stream;
@@ -112,16 +130,24 @@
         console.error(err);
       });
 
-    // Zoom via slider
+    function updateZoomUI(value) {
+      currentZoom = parseFloat(value);
+      video.style.transform = `scale(${currentZoom})`;
+      zoomLabel.textContent = `Zoom: ${currentZoom.toFixed(1)}×`;
+      zoomSlider.value = currentZoom;
+      zoomInput.value = currentZoom;
+    }
+
     zoomSlider.addEventListener('input', () => {
-      currentZoom = zoomSlider.value;
-      updateZoom();
+      updateZoomUI(zoomSlider.value);
     });
 
-    function updateZoom() {
-      video.style.transform = `scale(${currentZoom})`;
-      zoomValue.textContent = `Zoom: ${parseFloat(currentZoom).toFixed(1)}×`;
-    }
+    zoomInput.addEventListener('change', () => {
+      let val = parseFloat(zoomInput.value);
+      if (isNaN(val)) val = 1;
+      val = Math.min(10, Math.max(1, val));
+      updateZoomUI(val);
+    });
 
     // Pinch-to-zoom
     let initialDistance = null;
@@ -130,7 +156,7 @@
     video.addEventListener('touchstart', (e) => {
       if (e.touches.length === 2) {
         initialDistance = getDistance(e.touches[0], e.touches[1]);
-        initialZoom = parseFloat(currentZoom);
+        initialZoom = currentZoom;
       }
     });
 
@@ -138,9 +164,8 @@
       if (e.touches.length === 2 && initialDistance) {
         const newDistance = getDistance(e.touches[0], e.touches[1]);
         const zoomFactor = newDistance / initialDistance;
-        currentZoom = Math.min(10, Math.max(1, initialZoom * zoomFactor));
-        zoomSlider.value = currentZoom;
-        updateZoom();
+        const newZoom = Math.min(10, Math.max(1, initialZoom * zoomFactor));
+        updateZoomUI(newZoom);
       }
     });
 
