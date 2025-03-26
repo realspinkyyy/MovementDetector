@@ -1,203 +1,338 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GT7 Tuning Calculator</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #1a1a1a, #333);
-            color: white;
-            text-align: center;
-            padding: 0 20px;
-            overflow-x: hidden;
-        }
-
-        h1 {
-            margin-top: 40px;
-            font-size: 3em;
-            font-weight: bold;
-            text-shadow: 2px 2px 10px rgba(255, 87, 51, 0.8);
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        .container {
-            max-width: 700px;
-            margin: 50px auto;
-            padding: 30px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(255, 87, 51, 0.2);
-            backdrop-filter: blur(10px);
-            animation: slideUp 1s ease-in-out;
-        }
-
-        label {
-            display: block;
-            font-size: 1.2em;
-            margin-bottom: 8px;
-            font-weight: bold;
-            text-align: left;
-            color: white;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            text-shadow: 1px 1px 5px rgba(255, 87, 51, 0.7);
-            transition: all 0.3s ease-in-out;
-        }
-
-        select, input {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 20px;
-            font-size: 1.1em;
-            border-radius: 8px;
-            border: 1px solid #ddd;
-            background: #333;
-            color: white;
-            transition: all 0.3s ease;
-            box-shadow: inset 0px 0px 10px rgba(255, 87, 51, 0.3);
-        }
-
-        select:focus, input:focus {
-            outline: none;
-            border-color: #ff5733;
-            background: #444;
-            box-shadow: 0px 0px 10px rgba(255, 87, 51, 0.7);
-        }
-
-        button {
-            width: 100%;
-            padding: 15px;
-            background: #ff5733;
-            color: white;
-            font-size: 1.2em;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 20px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            font-weight: bold;
-            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
-        }
-
-        button:hover {
-            background: #ff2a00;
-            transform: translateY(-2px);
-        }
-
-        #results {
-            margin-top: 40px;
-            font-size: 1.2em;
-            color: #fff;
-            padding: 20px;
-            background: rgba(255, 87, 51, 0.2);
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(255, 87, 51, 0.3);
-            display: none;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GT7 Tuning Calculator</title>
+  <style>
+    /* Base resets */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Arial', sans-serif;
+      background: linear-gradient(135deg, #1a1a1a, #333);
+      color: white;
+      text-align: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+    h1 {
+      margin-top: 40px;
+      font-size: 3em;
+      font-weight: bold;
+      text-shadow: 2px 2px 10px rgba(255, 87, 51, 0.8);
+      animation: fadeIn 1s ease-in-out;
+    }
+    .container {
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(255, 87, 51, 0.2);
+      backdrop-filter: blur(10px);
+      animation: slideUp 1s ease-in-out;
+      text-align: left;
+    }
+    /* Label styling */
+    label {
+      display: block;
+      font-size: 1.2em;
+      margin-bottom: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: white;
+      text-shadow: 1px 1px 5px rgba(255, 87, 51, 0.7);
+      transition: all 0.3s ease-in-out;
+    }
+    /* Input styling */
+    select, input {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      font-size: 1.1em;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+      background: #333;
+      color: white;
+      transition: all 0.3s ease;
+      box-shadow: inset 0px 0px 10px rgba(255, 87, 51, 0.3);
+    }
+    select:focus, input:focus {
+      outline: none;
+      border-color: #ff5733;
+      background: #444;
+      box-shadow: 0px 0px 10px rgba(255, 87, 51, 0.7);
+    }
+    /* Button styling */
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #ff5733;
+      color: white;
+      font-size: 1.2em;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 20px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: bold;
+      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
+    }
+    button:hover {
+      background: #ff2a00;
+      transform: translateY(-2px);
+    }
+    /* Results section */
+    #results {
+      margin-top: 40px;
+      font-size: 1em;
+      color: #fff;
+      padding: 20px;
+      background: rgba(255, 87, 51, 0.2);
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(255, 87, 51, 0.3);
+      display: none;
+      text-align: left;
+      line-height: 1.5;
+    }
+    /* Animations */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    @keyframes slideUp {
+      from { transform: translateY(50px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 { font-size: 2.5em; }
+      .container { padding: 20px; }
+      select, input { font-size: 1em; padding: 10px; }
+      button { font-size: 1em; padding: 12px; }
+    }
+  </style>
 </head>
 <body>
+  <h1>GT7 Tuning Calculator</h1>
+  <div class="container">
+    <!-- Basic Car & Performance Inputs -->
+    <label for="car">Select Car:</label>
+    <select id="car">
+      <option value="rx7">Mazda RX-7</option>
+      <option value="r34">Nissan Skyline R34</option>
+      <option value="supra">Toyota Supra</option>
+      <option value="911">Porsche 911 GT3</option>
+    </select>
 
-    <h1>GT7 Tuning Calculator</h1>
-    <div class="container">
-        <label for="car">Select Car:</label>
-        <select id="car">
-            <option value="rx7">Mazda RX-7</option>
-            <option value="r34">Nissan Skyline R34</option>
-            <option value="supra">Toyota Supra</option>
-            <option value="911">Porsche 911 GT3</option>
-        </select>
+    <label for="horsepower">Enter Horsepower (HP):</label>
+    <input type="number" id="horsepower" placeholder="e.g. 500" />
 
-        <label for="horsepower">Enter Horsepower (HP):</label>
-        <input type="number" id="horsepower" placeholder="e.g. 500" oninput="calculateTune()">
+    <!-- Advanced Input Fields -->
+    <label for="driveType">Drive Type:</label>
+    <select id="driveType">
+      <option value="AWD">AWD</option>
+      <option value="FWD">FWD</option>
+      <option value="RWD">RWD</option>
+    </select>
 
-        <label for="torque">Enter Torque (Nm):</label>
-        <input type="number" id="torque" placeholder="e.g. 600" oninput="calculateTune()">
+    <label for="weight">Weight (lbs):</label>
+    <input type="number" id="weight" placeholder="e.g. 3200" />
 
-        <label for="driveType">Drive Type:</label>
-        <select id="driveType">
-            <option value="AWD">AWD</option>
-            <option value="FWD">FWD</option>
-            <option value="RWD">RWD</option>
-        </select>
+    <label for="frontDistribution">Front Distribution (%):</label>
+    <input type="number" id="frontDistribution" placeholder="e.g. 50" />
 
-        <label for="weight">Weight (kg):</label>
-        <input type="number" id="weight" placeholder="e.g. 1200" oninput="calculateTune()">
+    <label for="performanceIndex">Performance Index:</label>
+    <select id="performanceIndex">
+      <option value="1">E</option>
+      <option value="2">D</option>
+      <option value="3">C</option>
+      <option value="4">B</option>
+      <option value="5">A</option>
+      <option value="6">A+</option>
+      <option value="7">S</option>
+    </select>
 
-        <label for="gearRatio">Gear Ratio:</label>
-        <input type="number" id="gearRatio" placeholder="e.g. 4.11" oninput="calculateTune()">
+    <label for="drivingSurface">Driving Surface:</label>
+    <select id="drivingSurface">
+      <option value="street">Street</option>
+      <option value="dirt">Dirt</option>
+    </select>
 
-        <label for="tireType">Tire Type:</label>
-        <select id="tireType">
-            <option value="sport">Sport</option>
-            <option value="racing">Racing</option>
-            <option value="slicks">Slicks</option>
-        </select>
+    <label for="tuneType">Tune Type:</label>
+    <select id="tuneType">
+      <option value="race">Race</option>
+      <option value="drift">Drift</option>
+      <option value="track">Track</option>
+    </select>
 
-        <label for="performanceIndex">Performance Index:</label>
-        <select id="performanceIndex">
-            <option value="E">E</option>
-            <option value="D">D</option>
-            <option value="C">C</option>
-            <option value="B">B</option>
-            <option value="A">A</option>
-            <option value="A+">A+</option>
-            <option value="S">S</option>
-        </select>
+    <label for="gearTuning">Include Gear Tuning:</label>
+    <select id="gearTuning">
+      <option value="yes">Yes</option>
+      <option value="no">No</option>
+    </select>
 
-        <button onclick="calculateTune()">Calculate Tune</button>
+    <label for="rpm">RPM (Max RPM):</label>
+    <input type="number" id="rpm" placeholder="e.g. 8000" />
 
-        <div id="results"></div>
-    </div>
+    <label for="numGears">Number of Gears:</label>
+    <input type="number" id="numGears" placeholder="e.g. 6" />
 
-    <script>
-        function calculateTune() {
-            let hp = document.getElementById("horsepower").value;
-            let torque = document.getElementById("torque").value;
-            let weight = document.getElementById("weight").value;
-            let gearRatio = document.getElementById("gearRatio").value;
+    <label for="tireSize">Drive Tire Size (inches):</label>
+    <input type="number" id="tireSize" placeholder="e.g. 18" />
 
-            if (!hp || !torque || !weight || !gearRatio) {
-                document.getElementById("results").innerHTML = "<p>Please fill in all fields correctly.</p>";
-                return;
-            }
+    <label for="targetTopSpeed">Target Top Speed (MPH):</label>
+    <input type="number" id="targetTopSpeed" placeholder="e.g. 200" />
 
-            let powerToWeight = (hp / weight).toFixed(2);
-            let torqueToWeight = (torque / weight).toFixed(2);
-            let downforce = Math.round((hp / 2) * 0.1);
-            let suspension = (weight / 10).toFixed(1);
-            let accelerationFactor = (hp * gearRatio / weight).toFixed(2);
+    <!-- Calculation Button -->
+    <button onclick="calculateTune()">Calculate Tune</button>
 
-            document.getElementById("results").style.display = 'block';
-            document.getElementById("results").innerHTML = `
-                <h2>Tuning Results</h2>
-                <p><strong>Power-to-Weight Ratio:</strong> ${powerToWeight} HP/kg</p>
-                <p><strong>Torque-to-Weight Ratio:</strong> ${torqueToWeight} Nm/kg</p>
-                <p><strong>Acceleration Factor:</strong> ${accelerationFactor}</p>
-                <p><strong>Downforce:</strong> ${downforce}</p>
-                <p><strong>Suspension Stiffness:</strong> ${suspension}</p>
-            `;
-        }
-    </script>
+    <!-- Results Section -->
+    <div id="results"></div>
+  </div>
+
+  <script>
+    function calculateTune() {
+      // Get basic values
+      let hp = parseFloat(document.getElementById("horsepower").value);
+      let weight = parseFloat(document.getElementById("weight").value);
+      let frontDist = parseFloat(document.getElementById("frontDistribution").value);
+      let rpm = parseFloat(document.getElementById("rpm").value);
+      let numGears = parseFloat(document.getElementById("numGears").value);
+      let tireSize = parseFloat(document.getElementById("tireSize").value);
+      let targetSpeed = parseFloat(document.getElementById("targetTopSpeed").value);
+      
+      // Get additional selections
+      let driveType = document.getElementById("driveType").value;
+      let performanceIndex = parseFloat(document.getElementById("performanceIndex").value);
+      let drivingSurface = document.getElementById("drivingSurface").value;
+      let tuneType = document.getElementById("tuneType").value;
+      let gearTuning = document.getElementById("gearTuning").value; // yes or no
+
+      // Validate required fields
+      if (!hp || !weight || !frontDist || !rpm || !numGears || !tireSize || !targetSpeed) {
+        document.getElementById("results").innerHTML = "<p>Please fill in all fields correctly.</p>";
+        document.getElementById("results").style.display = "block";
+        return;
+      }
+
+      /* Arbitrary Calculations (These formulas are examples and can be refined)
+         NOTE: All values here are illustrative. Adjust formulas as needed. */
+
+      // 1. Break Balance (arbitrary: 75% of front distribution)
+      let breakBalance = (frontDist * 0.75).toFixed(2);
+
+      // 2. Transmission Ratio (RPM divided by number of gears)
+      let transmission = (rpm / numGears).toFixed(2);
+
+      // 3. ECU Power and Ballast
+      // ECU power is a function of HP and performance index; ballast is 2% of weight.
+      let ecuPower = (hp * performanceIndex / 100).toFixed(2);
+      let ballast = (weight * 0.02).toFixed(2);
+
+      // 4. Aerodynamics: Based on target speed and tune type multiplier.
+      let tuneMultiplier = (tuneType === "track") ? 1.1 : (tuneType === "drift" ? 0.8 : 1);
+      let aerodynamics = (targetSpeed * 0.3 * tuneMultiplier).toFixed(2);
+
+      // 5. Differential and LSD: Based on HP and drive type factor.
+      let driveFactor = (driveType === "AWD") ? 1 : (driveType === "FWD" ? 0.95 : 1.05);
+      let differential = (hp / 100 * driveFactor).toFixed(2);
+      let lsd = differential; // For simplicity, use same value
+
+      // 6. Suspension: Weight divided by 20 (arbitrary)
+      let suspension = (weight / 20).toFixed(2);
+
+      // 7. Tires: Tire rating as tireSize multiplied by 5
+      let tireRating = (tireSize * 5).toFixed(2);
+
+      // 8. Pressure Front and Rear: Dividing weight based on front distribution.
+      let frontPressure = ((weight * (frontDist / 100)) / tireSize).toFixed(2);
+      let rearPressure = ((weight * (1 - frontDist / 100)) / tireSize).toFixed(2);
+
+      // 9. Gear Ratios: Create a list for gears 1 to numGears and final drive.
+      let gearRatios = "";
+      for (let i = 1; i <= numGears; i++) {
+        let ratio = (transmission * (i / numGears)).toFixed(2);
+        gearRatios += `Gear ${i}: ${ratio} <br>`;
+      }
+      let finalDrive = "Final Drive: 0.90"; // Placeholder
+      gearRatios += finalDrive;
+
+      // 10. Camber (Front and Rear)
+      let camberFront = (weight / 10000).toFixed(2);
+      let camberRear = (camberFront * 1.1).toFixed(2);
+
+      // 11. Toe (Front and Rear): Fixed small values (in degrees)
+      let toeFront = 0.10;
+      let toeRear = 0.15;
+
+      // 12. Caster: Base of 5 degrees plus performance index factor
+      let caster = (5 + performanceIndex * 0.5).toFixed(2);
+
+      // 13. Anti Roll Bar (Front and Rear)
+      let antiRollFront = (weight / 200).toFixed(2);
+      let antiRollRear = (weight / 180).toFixed(2);
+
+      // 14. Springs (Front and Rear)
+      let springsFront = (weight / 100).toFixed(2);
+      let springsRear = (weight / 90).toFixed(2);
+
+      // 15. Ride Height (Front and Rear)
+      let rideHeightFront = (weight / 500).toFixed(2);
+      let rideHeightRear = (weight / 480).toFixed(2);
+
+      // 16. Rebound (Front and Rear)
+      let reboundFront = (weight / 600).toFixed(2);
+      let reboundRear = (weight / 580).toFixed(2);
+
+      // 17. Bump (Front and Rear)
+      let bumpFront = (weight / 700).toFixed(2);
+      let bumpRear = (weight / 680).toFixed(2);
+
+      // 18. Aero Downforce (Front and Rear): Derived from aerodynamics value
+      let aeroDownforceFront = (aerodynamics * 0.6).toFixed(2);
+      let aeroDownforceRear = (aerodynamics * 0.4).toFixed(2);
+
+      // 19. Braking: Balance and Force
+      let brakingForce = (hp / 10).toFixed(2);
+      let brakingBalance = (frontDist * 0.8).toFixed(2);
+
+      // Compile all results into HTML output
+      let resultsHTML = `
+        <h2>Tuning Results</h2>
+        <p><strong>Break Balance:</strong> ${breakBalance}</p>
+        <p><strong>Transmission Ratio:</strong> ${transmission} RPM/Gear</p>
+        <p><strong>ECU Power:</strong> ${ecuPower}</p>
+        <p><strong>Ballast:</strong> ${ballast}</p>
+        <p><strong>Aerodynamics Rating:</strong> ${aerodynamics}</p>
+        <p><strong>Differential & LSD:</strong> ${differential}</p>
+        <p><strong>Suspension Stiffness:</strong> ${suspension}</p>
+        <p><strong>Tire Rating:</strong> ${tireRating}</p>
+        <p><strong>Front Tire Pressure:</strong> ${frontPressure} (lbs/inch)</p>
+        <p><strong>Rear Tire Pressure:</strong> ${rearPressure} (lbs/inch)</p>
+        <p><strong>Gear Ratios:</strong><br>${gearRatios}</p>
+        <p><strong>Camber (Front):</strong> ${camberFront}° | <strong>Camber (Rear):</strong> ${camberRear}°</p>
+        <p><strong>Toe (Front):</strong> ${toeFront}° | <strong>Toe (Rear):</strong> ${toeRear}°</p>
+        <p><strong>Caster:</strong> ${caster}°</p>
+        <p><strong>Anti Roll Bar (Front):</strong> ${antiRollFront} | <strong>(Rear):</strong> ${antiRollRear}</p>
+        <p><strong>Springs (Front):</strong> ${springsFront} | <strong>(Rear):</strong> ${springsRear}</p>
+        <p><strong>Ride Height (Front):</strong> ${rideHeightFront} | <strong>(Rear):</strong> ${rideHeightRear}</p>
+        <p><strong>Rebound (Front):</strong> ${reboundFront} | <strong>(Rear):</strong> ${reboundRear}</p>
+        <p><strong>Bump (Front):</strong> ${bumpFront} | <strong>(Rear):</strong> ${bumpRear}</p>
+        <p><strong>Aero Downforce (Front):</strong> ${aeroDownforceFront} | <strong>(Rear):</strong> ${aeroDownforceRear}</p>
+        <p><strong>Braking Force:</strong> ${brakingForce} | <strong>Braking Balance:</strong> ${brakingBalance}</p>
+      `;
+      
+      document.getElementById("results").innerHTML = resultsHTML;
+      document.getElementById("results").style.display = "block";
+    }
+  </script>
 </body>
 </html>
