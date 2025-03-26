@@ -13,18 +13,19 @@
 
         body {
             font-family: 'Arial', sans-serif;
-            background: #f9f9f9;
-            color: #333;
+            background: linear-gradient(to bottom, #111, #222);
+            color: white;
             text-align: center;
             padding: 0 20px;
             overflow-x: hidden;
+            animation: fadeIn 1s ease-in-out;
         }
 
         h1 {
             margin-top: 40px;
             font-size: 3em;
             font-weight: bold;
-            color: #333;
+            color: #ff5733;
             animation: fadeIn 1s ease-in-out;
         }
 
@@ -32,9 +33,10 @@
             max-width: 600px;
             margin: 50px auto;
             padding: 30px;
-            background: #fff;
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
             animation: slideUp 1s ease-in-out;
         }
 
@@ -44,7 +46,7 @@
             margin-bottom: 8px;
             font-weight: 500;
             text-align: left;
-            color: #444;
+            color: white;
         }
 
         select, input {
@@ -54,16 +56,15 @@
             font-size: 1.1em;
             border-radius: 8px;
             border: 1px solid #ddd;
-            background: #f1f1f1;
-            color: #333;
+            background: #333;
+            color: white;
             transition: all 0.3s ease;
         }
 
         select:focus, input:focus {
             outline: none;
             border-color: #ff5733;
-            background: #fff;
-            box-shadow: 0 0 8px rgba(255, 87, 51, 0.5);
+            background: #444;
         }
 
         button {
@@ -84,19 +85,23 @@
             transform: translateY(-2px);
         }
 
-        #results {
-            margin-top: 40px;
-            font-size: 1.2em;
-            color: #444;
-            padding: 20px;
-            background: #f1f1f1;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        #carImage {
+            width: 100%;
+            max-height: 250px;
+            object-fit: contain;
+            margin-top: 20px;
             display: none;
         }
 
-        #results p {
-            margin-bottom: 10px;
+        #results {
+            margin-top: 40px;
+            font-size: 1.2em;
+            color: white;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            display: none;
         }
 
         @keyframes fadeIn {
@@ -108,44 +113,25 @@
             from { transform: translateY(50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5em;
-            }
-
-            .container {
-                padding: 20px;
-            }
-
-            select, input {
-                font-size: 1em;
-                padding: 10px;
-            }
-
-            button {
-                font-size: 1em;
-                padding: 12px;
-            }
-        }
     </style>
 </head>
 <body>
 
     <h1>GT7 Tuning Calculator</h1>
     <div class="container">
-        <!-- Car Selection (for Decoration Only) -->
-        <label for="car">Select Car (Decoration Only):</label>
-        <select id="car" disabled>
-            <option value="rx7">Mazda RX-7</option>
-            <option value="r34">Nissan Skyline R34</option>
-            <option value="supra">Toyota Supra</option>
-            <option value="911">Porsche 911 GT3</option>
+        <label for="car">Select Car:</label>
+        <select id="car" onchange="updateCarImage()">
+            <option value="" disabled selected>Select a car</option>
+            <option value="rx7" data-image="rx7.png">Mazda RX-7</option>
+            <option value="r34" data-image="r34.png">Nissan Skyline R34</option>
+            <option value="supra" data-image="supra.png">Toyota Supra</option>
+            <option value="911" data-image="911.png">Porsche 911 GT3</option>
         </select>
 
-        <!-- Tuning Input Fields -->
+        <img id="carImage" src="" alt="Car Image">
+
         <label for="horsepower">Enter Horsepower (HP):</label>
-        <input type="number" id="horsepower" placeholder="e.g. 500" oninput="calculateTune()">
+        <input type="number" id="horsepower" placeholder="e.g. 500">
 
         <label for="driveType">Drive Type:</label>
         <select id="driveType">
@@ -155,52 +141,10 @@
         </select>
 
         <label for="weight">Weight (lbs):</label>
-        <input type="number" id="weight" placeholder="e.g. 3200" oninput="calculateTune()">
-
-        <label for="frontDistribution">Front Weight Distribution (%):</label>
-        <input type="number" id="frontDistribution" placeholder="e.g. 50" oninput="calculateTune()">
-
-        <label for="performanceIndex">Performance Index:</label>
-        <select id="performanceIndex">
-            <option value="E">E</option>
-            <option value="D">D</option>
-            <option value="C">C</option>
-            <option value="B">B</option>
-            <option value="A">A</option>
-            <option value="A+">A+</option>
-            <option value="S">S</option>
-        </select>
-
-        <label for="drivingSurface">Driving Surface:</label>
-        <select id="drivingSurface">
-            <option value="street">Street</option>
-            <option value="dirt">Dirt</option>
-        </select>
-
-        <label for="tuneType">Tune Type:</label>
-        <select id="tuneType">
-            <option value="race">Race</option>
-            <option value="drift">Drift</option>
-            <option value="track">Track</option>
-        </select>
+        <input type="number" id="weight" placeholder="e.g. 3200">
 
         <label for="targetTopSpeed">Target Top Speed (MPH):</label>
-        <input type="number" id="targetTopSpeed" placeholder="e.g. 200" oninput="calculateTune()">
-
-        <label for="gearTuning">Include Gear Tuning:</label>
-        <select id="gearTuning">
-            <option value="yes">Yes</option>
-            <option value="no">No</option>
-        </select>
-
-        <label for="rpm">RPM (Max RPM):</label>
-        <input type="number" id="rpm" placeholder="e.g. 8000" oninput="calculateTune()">
-
-        <label for="numGears">Number of Gears:</label>
-        <input type="number" id="numGears" placeholder="e.g. 6" oninput="calculateTune()">
-
-        <label for="tireSize">Drive Tire Size (inches):</label>
-        <input type="number" id="tireSize" placeholder="e.g. 18" oninput="calculateTune()">
+        <input type="number" id="targetTopSpeed" placeholder="e.g. 200">
 
         <button onclick="calculateTune()">Calculate Tune</button>
 
@@ -208,47 +152,45 @@
     </div>
 
     <script>
+        function updateCarImage() {
+            let carSelect = document.getElementById("car");
+            let selectedOption = carSelect.options[carSelect.selectedIndex];
+            let carImage = document.getElementById("carImage");
+
+            if (selectedOption.value) {
+                carImage.src = selectedOption.getAttribute("data-image");
+                carImage.style.display = "block";
+            } else {
+                carImage.style.display = "none";
+            }
+        }
+
         function calculateTune() {
             let hp = document.getElementById("horsepower").value;
             let driveType = document.getElementById("driveType").value;
             let weight = document.getElementById("weight").value;
-            let frontDistribution = document.getElementById("frontDistribution").value;
-            let performanceIndex = document.getElementById("performanceIndex").value;
-            let drivingSurface = document.getElementById("drivingSurface").value;
-            let tuneType = document.getElementById("tuneType").value;
-            let targetTopSpeed = document.getElementById("targetTopSpeed").value;
-            let rpm = document.getElementById("rpm").value;
-            let numGears = document.getElementById("numGears").value;
-            let tireSize = document.getElementById("tireSize").value;
+            let topSpeed = document.getElementById("targetTopSpeed").value;
 
-            if (!hp || !weight || !frontDistribution || !rpm || !numGears || !tireSize) {
-                document.getElementById("results").innerHTML = "<p>Please fill in all fields correctly.</p>";
+            if (!hp || !weight || !topSpeed) {
+                document.getElementById("results").innerHTML = "<p>Please fill in all fields.</p>";
+                document.getElementById("results").style.display = "block";
                 return;
             }
 
             let powerToWeight = (hp / weight).toFixed(2);
             let downforce = Math.round((hp / 2) * 0.1);
             let suspension = (weight / 10).toFixed(1);
+            let brakeBalance = (weight / 1000).toFixed(2);
+            let transmission = (topSpeed / 6).toFixed(2);
 
-            let brakeBalance = (frontDistribution / 100) * 0.7;
-            let transmission = rpm / numGears;
-            let lsd = Math.round((hp / 100) * 10);
-            let camberFront = Math.round((weight / 1000) * 0.1);
-            let camberRear = camberFront * 1.1;
-
-            document.getElementById("results").style.display = 'block';
+            document.getElementById("results").style.display = "block";
             document.getElementById("results").innerHTML = `
                 <h2>Tuning Results</h2>
-                <p><strong>Power-to-Weight Ratio:</strong> ${powerToWeight} HP/kg</p>
+                <p><strong>Power-to-Weight Ratio:</strong> ${powerToWeight} HP/lbs</p>
                 <p><strong>Downforce:</strong> ${downforce}</p>
                 <p><strong>Suspension Stiffness:</strong> ${suspension}</p>
                 <p><strong>Brake Balance:</strong> ${brakeBalance}</p>
-                <p><strong>Transmission Ratio:</strong> ${transmission} RPM/Gear</p>
-                <p><strong>LSD
-                <p><strong>LSD:</strong> ${lsd}</p>
-                <p><strong>Front Camber:</strong> ${camberFront}°</p>
-                <p><strong>Rear Camber:</strong> ${camberRear}°</p>
-                <p><strong>Estimated Top Speed:</strong> ${targetTopSpeed} MPH (adjustable)</p>
+                <p><strong>Transmission Ratio:</strong> ${transmission} MPH/Gear</p>
             `;
         }
     </script>
