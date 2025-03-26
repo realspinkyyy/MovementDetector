@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GT7 Tuner</title>
+    <title>GT7 Tuning Calculator</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -84,6 +84,61 @@
         <label for="horsepower">Enter Horsepower (HP):</label>
         <input type="number" id="horsepower" placeholder="e.g. 500" oninput="calculateTune()">
 
+        <label for="driveType">Drive Type:</label>
+        <select id="driveType">
+            <option value="AWD">AWD</option>
+            <option value="FWD">FWD</option>
+            <option value="RWD">RWD</option>
+        </select>
+
+        <label for="weight">Weight (lbs):</label>
+        <input type="number" id="weight" placeholder="e.g. 3200" oninput="calculateTune()">
+
+        <label for="frontDistribution">Front Weight Distribution (%):</label>
+        <input type="number" id="frontDistribution" placeholder="e.g. 50" oninput="calculateTune()">
+
+        <label for="performanceIndex">Performance Index:</label>
+        <select id="performanceIndex">
+            <option value="E">E</option>
+            <option value="D">D</option>
+            <option value="C">C</option>
+            <option value="B">B</option>
+            <option value="A">A</option>
+            <option value="A+">A+</option>
+            <option value="S">S</option>
+        </select>
+
+        <label for="drivingSurface">Driving Surface:</label>
+        <select id="drivingSurface">
+            <option value="street">Street</option>
+            <option value="dirt">Dirt</option>
+        </select>
+
+        <label for="tuneType">Tune Type:</label>
+        <select id="tuneType">
+            <option value="race">Race</option>
+            <option value="drift">Drift</option>
+            <option value="track">Track</option>
+        </select>
+
+        <label for="targetTopSpeed">Target Top Speed (MPH):</label>
+        <input type="number" id="targetTopSpeed" placeholder="e.g. 200" oninput="calculateTune()">
+
+        <label for="gearTuning">Include Gear Tuning:</label>
+        <select id="gearTuning">
+            <option value="yes">Yes</option>
+            <option value="no">No</option>
+        </select>
+
+        <label for="rpm">RPM (Max RPM):</label>
+        <input type="number" id="rpm" placeholder="e.g. 8000" oninput="calculateTune()">
+
+        <label for="numGears">Number of Gears:</label>
+        <input type="number" id="numGears" placeholder="e.g. 6" oninput="calculateTune()">
+
+        <label for="tireSize">Drive Tire Size (inches):</label>
+        <input type="number" id="tireSize" placeholder="e.g. 18" oninput="calculateTune()">
+
         <button onclick="calculateTune()">Calculate Tune</button>
 
         <div id="results"></div>
@@ -91,43 +146,50 @@
 
     <script>
         function calculateTune() {
+            // Collect all the inputs
             let car = document.getElementById("car");
             let hp = document.getElementById("horsepower").value;
-            let selectedOption = car.options[car.selectedIndex];
+            let driveType = document.getElementById("driveType").value;
+            let weight = document.getElementById("weight").value;
+            let frontDistribution = document.getElementById("frontDistribution").value;
+            let performanceIndex = document.getElementById("performanceIndex").value;
+            let drivingSurface = document.getElementById("drivingSurface").value;
+            let tuneType = document.getElementById("tuneType").value;
+            let targetTopSpeed = document.getElementById("targetTopSpeed").value;
+            let rpm = document.getElementById("rpm").value;
+            let numGears = document.getElementById("numGears").value;
+            let tireSize = document.getElementById("tireSize").value;
 
-            if (!hp || hp <= 0) {
-                document.getElementById("results").innerHTML = "<p>Please enter a valid horsepower.</p>";
+            if (!hp || !weight || !frontDistribution || !rpm || !numGears || !tireSize) {
+                document.getElementById("results").innerHTML = "<p>Please fill in all fields correctly.</p>";
                 return;
             }
 
-            let weight = selectedOption.getAttribute("data-weight");
-            let pp = selectedOption.getAttribute("data-pp");
-            let drivetrain = selectedOption.getAttribute("data-drivetrain");
-
-            // Power-to-weight ratio
             let powerToWeight = (hp / weight).toFixed(2);
-
-            // Fine-tuning based on horsepower and weight
             let downforce = Math.round((hp / 2) * 0.1);
-            let lsd = Math.round((hp / 100) * 10);
             let suspension = (weight / 10).toFixed(1);
-            
-            // Adjustments based on drivetrain
-            if (drivetrain === "AWD") {
-                suspension *= 1.2;  // AWD cars need stiffer suspension
-                downforce *= 1.1;   // AWD cars benefit from slightly more downforce
-            }
 
+            // Additional Calculations (simplified logic for now)
+            let brakeBalance = (frontDistribution / 100) * 0.7;  // Example calculation
+            let transmission = rpm / numGears;  // Basic RPM to gear relation
+            let lsd = Math.round((hp / 100) * 10);
+            let camberFront = Math.round((weight / 1000) * 0.1);
+            let camberRear = camberFront * 1.1;
+
+            // Display results
             document.getElementById("results").innerHTML = `
                 <h2>Tuning Results</h2>
-                <p><strong>Car:</strong> ${selectedOption.text}</p>
-                <p><strong>Weight:</strong> ${weight} kg</p>
-                <p><strong>PP:</strong> ${pp}</p>
-                <p><strong>Drivetrain:</strong> ${drivetrain}</p>
+                <p><strong>Car:</strong> ${car.options[car.selectedIndex].text}</p>
                 <p><strong>Power-to-Weight Ratio:</strong> ${powerToWeight} HP/kg</p>
-                <p><strong>Recommended Downforce:</strong> ${downforce}</p>
-                <p><strong>LSD Acceleration:</strong> ${lsd}</p>
+                <p><strong>Downforce:</strong> ${downforce}</p>
                 <p><strong>Suspension Stiffness:</strong> ${suspension}</p>
+                <p><strong>Brake Balance:</strong> ${brakeBalance}</p>
+                <p><strong>Transmission Ratio:</strong> ${transmission} RPM/Gear</p>
+                <p><strong>LSD Acceleration:</strong> ${lsd}</p>
+                <p><strong>Camber (Front):</strong> ${camberFront}°</p>
+                <p><strong>Camber (Rear):</strong> ${camberRear}°</p>
+                <p><strong>Driving Surface:</strong> ${drivingSurface}</p>
+                <p><strong>Tune Type:</strong> ${tuneType}</p>
             `;
         }
     </script>
