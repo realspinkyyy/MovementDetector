@@ -1,250 +1,127 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Piano App</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #212121;
-      color: #fff;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    h1 {
-      margin-bottom: 20px;
-      font-size: 2rem;
-    }
-
-    .piano {
-      display: flex;
-      align-items: center;
-    }
-
-    .white-key {
-      width: 60px;
-      height: 300px;
-      background-color: white;
-      border: 1px solid #bbb;
-      margin: 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    .black-key {
-      width: 40px;
-      height: 200px;
-      background-color: black;
-      position: absolute;
-      left: 0;
-      top: 0;
-      z-index: 2;
-      margin-left: -20px;
-    }
-
-    .controls {
-      margin-top: 20px;
-      display: flex;
-      justify-content: space-around;
-      width: 80%;
-    }
-
-    .drum-pad {
-      width: 50px;
-      height: 50px;
-      background-color: #00ff88;
-      margin: 5px;
-      border-radius: 8px;
-      border: 2px solid #fff;
-      cursor: pointer;
-    }
-
-    .slider {
-      width: 200px;
-    }
-
-    .settings-panel {
-      margin-top: 20px;
-      background-color: rgba(0, 0, 0, 0.7);
-      padding: 10px;
-      border-radius: 8px;
-    }
-
-    .console {
-      background-color: #333;
-      color: #fff;
-      height: 150px;
-      width: 400px;
-      padding: 10px;
-      overflow-y: scroll;
-      border-radius: 8px;
-      font-size: 14px;
-    }
-
-    .btn {
-      background-color: #00ff88;
-      color: white;
-      padding: 10px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    .btn:hover {
-      background-color: #00cc66;
-    }
-
-    .debug {
-      font-size: 12px;
-      color: #bbb;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GT7 Tuner</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #121212;
+            color: white;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            margin-top: 20px;
+            font-size: 2em;
+            animation: fadeIn 1s ease-in-out;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background: #1e1e1e;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+            margin-top: 20px;
+            animation: slideUp 1s ease-in-out;
+        }
+        label, select, input {
+            display: block;
+            width: 100%;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: none;
+        }
+        select, input {
+            background: #333;
+            color: white;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2em;
+            background: #ff5733;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background: #ff2a00;
+        }
+        #results {
+            margin-top: 20px;
+            font-size: 1.2em;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+    </style>
 </head>
 <body>
 
-  <h1>Piano Web App</h1>
+    <h1>GT7 Tuning Calculator</h1>
+    <div class="container">
+        <label for="car">Select Car:</label>
+        <select id="car">
+            <option value="rx7" data-weight="1250" data-pp="600" data-drivetrain="RWD">Mazda RX-7</option>
+            <option value="r34" data-weight="1560" data-pp="650" data-drivetrain="AWD">Nissan Skyline R34</option>
+            <option value="supra" data-weight="1570" data-pp="670" data-drivetrain="RWD">Toyota Supra</option>
+            <option value="911" data-weight="1400" data-pp="700" data-drivetrain="RWD">Porsche 911 GT3</option>
+        </select>
 
-  <!-- Piano Keys -->
-  <div class="piano">
-    <!-- White keys -->
-    <div class="white-key" id="C"></div>
-    <div class="black-key" id="C-sharp"></div>
-    <div class="white-key" id="D"></div>
-    <div class="black-key" id="D-sharp"></div>
-    <div class="white-key" id="E"></div>
-    <div class="white-key" id="F"></div>
-    <div class="black-key" id="F-sharp"></div>
-    <div class="white-key" id="G"></div>
-    <div class="black-key" id="G-sharp"></div>
-    <div class="white-key" id="A"></div>
-    <div class="black-key" id="A-sharp"></div>
-    <div class="white-key" id="B"></div>
-    <div class="white-key" id="C2"></div>
-  </div>
+        <label for="horsepower">Enter Horsepower (HP):</label>
+        <input type="number" id="horsepower" placeholder="e.g. 500">
 
-  <!-- Controls: Pitch Slider and Voice Selection -->
-  <div class="controls">
-    <input type="range" class="slider" id="pitchSlider" min="0.5" max="2" step="0.1" value="1">
-    <div>
-      <select id="voiceSelect">
-        <option value="piano">Piano</option>
-        <option value="guitar">Guitar</option>
-        <option value="violin">Violin</option>
-      </select>
+        <button onclick="calculateTune()">Calculate Tune</button>
+
+        <div id="results"></div>
     </div>
-  </div>
 
-  <!-- Drum Pads -->
-  <div>
-    <h3>Drum Pads</h3>
-    <div id="drumPads">
-      <div class="drum-pad" data-sound="drum1"></div>
-      <div class="drum-pad" data-sound="drum2"></div>
-      <div class="drum-pad" data-sound="drum3"></div>
-    </div>
-  </div>
+    <script>
+        function calculateTune() {
+            let car = document.getElementById("car");
+            let hp = document.getElementById("horsepower").value;
+            let selectedOption = car.options[car.selectedIndex];
 
-  <!-- Settings and Debug Console -->
-  <div class="settings-panel">
-    <h3>Settings</h3>
-    <div>
-      <button class="btn" onclick="toggleConsole()">Show/Hide Debug Console</button>
-    </div>
-    <div id="console" class="console" style="display: none;"></div>
-  </div>
+            if (!hp || hp <= 0) {
+                document.getElementById("results").innerHTML = "<p>Please enter a valid horsepower.</p>";
+                return;
+            }
 
-  <script>
-    const pitchSlider = document.getElementById('pitchSlider');
-    const voiceSelect = document.getElementById('voiceSelect');
-    const drumPads = document.querySelectorAll('.drum-pad');
-    const consoleElement = document.getElementById('console');
-    
-    const keys = document.querySelectorAll('.white-key, .black-key');
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    let currentVoice = 'piano';
+            let weight = selectedOption.getAttribute("data-weight");
+            let pp = selectedOption.getAttribute("data-pp");
+            let drivetrain = selectedOption.getAttribute("data-drivetrain");
 
-    const notes = {
-      'C': 'C',
-      'C-sharp': 'C#',
-      'D': 'D',
-      'D-sharp': 'D#',
-      'E': 'E',
-      'F': 'F',
-      'F-sharp': 'F#',
-      'G': 'G',
-      'G-sharp': 'G#',
-      'A': 'A',
-      'A-sharp': 'A#',
-      'B': 'B',
-      'C2': 'C2'
-    };
+            let powerToWeight = (hp / weight).toFixed(2);
+            let downforce = Math.round((hp / 2) * 0.1);
+            let lsd = Math.round((hp / 100) * 10);
+            let suspension = (weight / 10).toFixed(1);
 
-    function playSound(note) {
-      console.log(`${note} is working`);
-      const oscillator = audioContext.createOscillator();
-      oscillator.type = 'sine';
-      oscillator.frequency.setValueAtTime(getFrequency(note), audioContext.currentTime);
-      oscillator.connect(audioContext.destination);
-      oscillator.start();
-      oscillator.stop(audioContext.currentTime + 0.5);
-    }
+            document.getElementById("results").innerHTML = `
+                <h2>Tuning Results</h2>
+                <p><strong>Car:</strong> ${selectedOption.text}</p>
+                <p><strong>Weight:</strong> ${weight} kg</p>
+                <p><strong>PP:</strong> ${pp}</p>
+                <p><strong>Drivetrain:</strong> ${drivetrain}</p>
+                <p><strong>Power-to-Weight Ratio:</strong> ${powerToWeight} HP/kg</p>
+                <p><strong>Recommended Downforce:</strong> ${downforce}</p>
+                <p><strong>LSD Acceleration:</strong> ${lsd}</p>
+                <p><strong>Suspension Stiffness:</strong> ${suspension}</p>
+            `;
+        }
+    </script>
 
-    function getFrequency(note) {
-      const frequencies = {
-        'C': 261.63,
-        'C#': 277.18,
-        'D': 293.66,
-        'D#': 311.13,
-        'E': 329.63,
-        'F': 349.23,
-        'F#': 369.99,
-        'G': 392.00,
-        'G#': 415.30,
-        'A': 440.00,
-        'A#': 466.16,
-        'B': 493.88,
-        'C2': 523.25
-      };
-      return frequencies[note];
-    }
-
-    function changePitch() {
-      console.log(`Pitch changed to: ${pitchSlider.value}`);
-    }
-
-    function changeVoice() {
-      currentVoice = voiceSelect.value;
-      console.log(`Voice changed to: ${currentVoice}`);
-    }
-
-    function toggleConsole() {
-      const currentDisplay = consoleElement.style.display;
-      consoleElement.style.display = currentDisplay === 'none' ? 'block' : 'none';
-    }
-
-    keys.forEach(key => {
-      key.addEventListener('click', () => {
-        const note = key.id;
-        playSound(note);
-      });
-    });
-
-    pitchSlider.addEventListener('input', changePitch);
-    voiceSelect.addEventListener('change', changeVoice);
-
-    // Drum Pads
-    drumPads.forEach(pad => {
-      pad.addEventListener('click', () => {
-        const sound = pad.dataset.sound;
-        console.log(`${sound} drum pad is triggered`);
-      });
-    });
-  </script>
 </body>
 </html>
