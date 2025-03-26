@@ -37,6 +37,7 @@
       animation: slideUp 1s ease-in-out;
       text-align: left;
     }
+    /* Label styling */
     label {
       display: block;
       font-size: 1.2em;
@@ -48,9 +49,8 @@
       text-shadow: 1px 1px 5px rgba(255, 87, 51, 0.7);
       transition: all 0.3s ease-in-out;
     }
-    input[type="number"],
-    select,
-    input[type="range"] {
+    /* Input styling */
+    select, input {
       width: 100%;
       padding: 12px;
       margin-bottom: 20px;
@@ -62,20 +62,13 @@
       transition: all 0.3s ease;
       box-shadow: inset 0px 0px 10px rgba(255, 87, 51, 0.3);
     }
-    input[type="number"]:focus,
-    select:focus,
-    input[type="range"]:focus {
+    select:focus, input:focus {
       outline: none;
       border-color: #ff5733;
       background: #444;
       box-shadow: 0px 0px 10px rgba(255, 87, 51, 0.7);
     }
-    .slider-value {
-      font-size: 1em;
-      margin-bottom: 10px;
-      text-align: right;
-      color: #ffcc99;
-    }
+    /* Button styling */
     button {
       width: 100%;
       padding: 15px;
@@ -96,6 +89,7 @@
       background: #ff2a00;
       transform: translateY(-2px);
     }
+    /* Results section */
     #results {
       margin-top: 40px;
       font-size: 1em;
@@ -108,6 +102,7 @@
       text-align: left;
       line-height: 1.5;
     }
+    /* Animations */
     @keyframes fadeIn {
       from { opacity: 0; }
       to { opacity: 1; }
@@ -116,10 +111,11 @@
       from { transform: translateY(50px); opacity: 0; }
       to { transform: translateY(0); opacity: 1; }
     }
+    /* Responsive */
     @media (max-width: 768px) {
       h1 { font-size: 2.5em; }
       .container { padding: 20px; }
-      input, select, input[type="range"] { font-size: 1em; padding: 10px; }
+      select, input { font-size: 1em; padding: 10px; }
       button { font-size: 1em; padding: 12px; }
     }
   </style>
@@ -127,7 +123,7 @@
 <body>
   <h1>GT7 Tuning Calculator</h1>
   <div class="container">
-    <!-- Car Selection -->
+    <!-- Basic Car & Performance Inputs -->
     <label for="car">Select Car:</label>
     <select id="car">
       <option value="rx7">Mazda RX-7</option>
@@ -136,24 +132,21 @@
       <option value="911">Porsche 911 GT3</option>
     </select>
 
-    <!-- Interactive Sliders & Number Inputs for Real-Time Feedback -->
     <label for="horsepower">Enter Horsepower (HP):</label>
-    <input type="number" id="horsepower" placeholder="e.g. 500" oninput="syncSlider('horsepower')" />
-    <input type="range" id="horsepowerSlider" min="100" max="1000" value="500" oninput="syncNumber('horsepower', 'horsepowerSlider')" />
-    <div class="slider-value" id="horsepowerValue">500</div>
+    <input type="number" id="horsepower" placeholder="e.g. 500" />
+
+    <!-- Advanced Input Fields -->
+    <label for="driveType">Drive Type:</label>
+    <select id="driveType">
+      <option value="AWD">AWD</option>
+      <option value="FWD">FWD</option>
+      <option value="RWD">RWD</option>
+    </select>
 
     <label for="weight">Weight (lbs):</label>
-    <input type="number" id="weight" placeholder="e.g. 3200" oninput="syncSlider('weight')" />
-    <input type="range" id="weightSlider" min="1000" max="5000" value="3200" oninput="syncNumber('weight', 'weightSlider')" />
-    <div class="slider-value" id="weightValue">3200</div>
+    <input type="number" id="weight" placeholder="e.g. 3200" />
 
-    <label for="rpm">RPM (Max RPM):</label>
-    <input type="number" id="rpm" placeholder="e.g. 8000" oninput="syncSlider('rpm')" />
-    <input type="range" id="rpmSlider" min="4000" max="10000" value="8000" oninput="syncNumber('rpm', 'rpmSlider')" />
-    <div class="slider-value" id="rpmValue">8000</div>
-
-    <!-- Additional Advanced Inputs -->
-    <label for="frontDistribution">Front Weight Distribution (%):</label>
+    <label for="frontDistribution">Front Distribution (%):</label>
     <input type="number" id="frontDistribution" placeholder="e.g. 50" />
 
     <label for="performanceIndex">Performance Index:</label>
@@ -186,6 +179,9 @@
       <option value="no">No</option>
     </select>
 
+    <label for="rpm">RPM (Max RPM):</label>
+    <input type="number" id="rpm" placeholder="e.g. 8000" />
+
     <label for="numGears">Number of Gears:</label>
     <input type="number" id="numGears" placeholder="e.g. 6" />
 
@@ -195,48 +191,24 @@
     <label for="targetTopSpeed">Target Top Speed (MPH):</label>
     <input type="number" id="targetTopSpeed" placeholder="e.g. 200" />
 
-    <!-- Calculate and Export Buttons -->
+    <!-- Calculation Button -->
     <button onclick="calculateTune()">Calculate Tune</button>
-    <button onclick="exportCSV()">Export as CSV</button>
 
     <!-- Results Section -->
     <div id="results"></div>
   </div>
 
   <script>
-    // Synchronize number input and slider for real-time feedback
-    function syncNumber(numID, sliderID) {
-      const numInput = document.getElementById(numID);
-      const slider = document.getElementById(sliderID);
-      const display = document.getElementById(numID + "Value");
-      numInput.value = slider.value;
-      display.textContent = slider.value;
-      calculateTune();
-    }
-    function syncSlider(numID) {
-      const numInput = document.getElementById(numID);
-      const slider = document.getElementById(numID + "Slider");
-      const display = document.getElementById(numID + "Value");
-      if (slider) {
-        slider.value = numInput.value;
-        display.textContent = numInput.value;
-      }
-      calculateTune();
-    }
-
-    // Main tuning calculation function with debugging messages
     function calculateTune() {
-      console.log("Calculating tuning parameters...");
-      
       // Get basic values
       let hp = parseFloat(document.getElementById("horsepower").value);
       let weight = parseFloat(document.getElementById("weight").value);
-      let rpm = parseFloat(document.getElementById("rpm").value);
       let frontDist = parseFloat(document.getElementById("frontDistribution").value);
+      let rpm = parseFloat(document.getElementById("rpm").value);
       let numGears = parseFloat(document.getElementById("numGears").value);
       let tireSize = parseFloat(document.getElementById("tireSize").value);
       let targetSpeed = parseFloat(document.getElementById("targetTopSpeed").value);
-
+      
       // Get additional selections
       let driveType = document.getElementById("driveType").value;
       let performanceIndex = parseFloat(document.getElementById("performanceIndex").value);
@@ -245,66 +217,98 @@
       let gearTuning = document.getElementById("gearTuning").value; // yes or no
 
       // Validate required fields
-      if (!hp || !weight || !rpm || !frontDist || !numGears || !tireSize || !targetSpeed) {
+      if (!hp || !weight || !frontDist || !rpm || !numGears || !tireSize || !targetSpeed) {
         document.getElementById("results").innerHTML = "<p>Please fill in all fields correctly.</p>";
         document.getElementById("results").style.display = "block";
-        console.log("Validation failed: Missing required fields.");
         return;
       }
-      console.log("All required fields provided.");
 
-      /* Calculations: (Placeholder formulas - adjust as needed)
-         Break Balance, Transmission, ECU Power, Ballast, Aerodynamics, Differential & LSD,
-         Suspension, Tires, Tire Pressure, Gear Ratios, Camber, Toe, Caster, Anti Roll Bar,
-         Springs, Ride Height, Rebound, Bump, Aero Downforce, Braking.
-      */
+      /* Arbitrary Calculations (These formulas are examples and can be refined)
+         NOTE: All values here are illustrative. Adjust formulas as needed. */
+
+      // 1. Break Balance (arbitrary: 75% of front distribution)
       let breakBalance = (frontDist * 0.75).toFixed(2);
+
+      // 2. Transmission Ratio (RPM divided by number of gears)
       let transmission = (rpm / numGears).toFixed(2);
+
+      // 3. ECU Power and Ballast
+      // ECU power is a function of HP and performance index; ballast is 2% of weight.
       let ecuPower = (hp * performanceIndex / 100).toFixed(2);
       let ballast = (weight * 0.02).toFixed(2);
+
+      // 4. Aerodynamics: Based on target speed and tune type multiplier.
       let tuneMultiplier = (tuneType === "track") ? 1.1 : (tuneType === "drift" ? 0.8 : 1);
       let aerodynamics = (targetSpeed * 0.3 * tuneMultiplier).toFixed(2);
+
+      // 5. Differential and LSD: Based on HP and drive type factor.
       let driveFactor = (driveType === "AWD") ? 1 : (driveType === "FWD" ? 0.95 : 1.05);
       let differential = (hp / 100 * driveFactor).toFixed(2);
-      let lsd = differential; // Simplified
+      let lsd = differential; // For simplicity, use same value
+
+      // 6. Suspension: Weight divided by 20 (arbitrary)
       let suspension = (weight / 20).toFixed(2);
+
+      // 7. Tires: Tire rating as tireSize multiplied by 5
       let tireRating = (tireSize * 5).toFixed(2);
+
+      // 8. Pressure Front and Rear: Dividing weight based on front distribution.
       let frontPressure = ((weight * (frontDist / 100)) / tireSize).toFixed(2);
       let rearPressure = ((weight * (1 - frontDist / 100)) / tireSize).toFixed(2);
-      
+
+      // 9. Gear Ratios: Create a list for gears 1 to numGears and final drive.
       let gearRatios = "";
       for (let i = 1; i <= numGears; i++) {
         let ratio = (transmission * (i / numGears)).toFixed(2);
-        gearRatios += `Gear ${i}: ${ratio}<br>`;
+        gearRatios += `Gear ${i}: ${ratio} <br>`;
       }
-      let finalDrive = "Final Drive: 0.90";
+      let finalDrive = "Final Drive: 0.90"; // Placeholder
       gearRatios += finalDrive;
-      
+
+      // 10. Camber (Front and Rear)
       let camberFront = (weight / 10000).toFixed(2);
       let camberRear = (camberFront * 1.1).toFixed(2);
+
+      // 11. Toe (Front and Rear): Fixed small values (in degrees)
       let toeFront = 0.10;
       let toeRear = 0.15;
+
+      // 12. Caster: Base of 5 degrees plus performance index factor
       let caster = (5 + performanceIndex * 0.5).toFixed(2);
+
+      // 13. Anti Roll Bar (Front and Rear)
       let antiRollFront = (weight / 200).toFixed(2);
       let antiRollRear = (weight / 180).toFixed(2);
+
+      // 14. Springs (Front and Rear)
       let springsFront = (weight / 100).toFixed(2);
       let springsRear = (weight / 90).toFixed(2);
+
+      // 15. Ride Height (Front and Rear)
       let rideHeightFront = (weight / 500).toFixed(2);
       let rideHeightRear = (weight / 480).toFixed(2);
+
+      // 16. Rebound (Front and Rear)
       let reboundFront = (weight / 600).toFixed(2);
       let reboundRear = (weight / 580).toFixed(2);
+
+      // 17. Bump (Front and Rear)
       let bumpFront = (weight / 700).toFixed(2);
       let bumpRear = (weight / 680).toFixed(2);
+
+      // 18. Aero Downforce (Front and Rear): Derived from aerodynamics value
       let aeroDownforceFront = (aerodynamics * 0.6).toFixed(2);
       let aeroDownforceRear = (aerodynamics * 0.4).toFixed(2);
+
+      // 19. Braking: Balance and Force
       let brakingForce = (hp / 10).toFixed(2);
       let brakingBalance = (frontDist * 0.8).toFixed(2);
 
       // Advanced Performance Simulation:
+      // Estimated 0-60 time (placeholder: lower is better, proportional to weight/hp)
       let zeroToSixty = (weight / hp * 2).toFixed(2);
+      // Estimated lap time (placeholder: higher weight/hp ratio increases lap time)
       let lapTime = (zeroToSixty * 5).toFixed(2);
-
-      console.log("Calculations complete.");
 
       // Compile all results into HTML output
       let resultsHTML = `
@@ -329,7 +333,7 @@
         <p><strong>Rebound:</strong> Front: ${reboundFront} | Rear: ${reboundRear}</p>
         <p><strong>Bump:</strong> Front: ${bumpFront} | Rear: ${bumpRear}</p>
         <p><strong>Aero Downforce:</strong> Front: ${aeroDownforceFront} | Rear: ${aeroDownforceRear}</p>
-        <p><strong>Braking:</strong> Force: ${brakingForce} | Balance: ${brakingBalance}</p>
+        <p><strong>Braking Force:</strong> ${brakingForce} | <strong>Braking Balance:</strong> ${brakingBalance}</p>
         <hr>
         <h2>Performance Simulation</h2>
         <p><strong>Estimated 0-60 MPH Time:</strong> ${zeroToSixty} seconds</p>
@@ -338,52 +342,6 @@
       
       document.getElementById("results").innerHTML = resultsHTML;
       document.getElementById("results").style.display = "block";
-      console.log("Results displayed.");
-    }
-
-    // Export current tuning configuration and simulation results to CSV
-    function exportCSV() {
-      // Gather current values
-      let hp = document.getElementById("horsepower").value;
-      let weight = document.getElementById("weight").value;
-      let rpm = document.getElementById("rpm").value;
-      let frontDist = document.getElementById("frontDistribution").value;
-      let performanceIndex = document.getElementById("performanceIndex").value;
-      let drivingSurface = document.getElementById("drivingSurface").value;
-      let tuneType = document.getElementById("tuneType").value;
-      let gearTuning = document.getElementById("gearTuning").value;
-      let numGears = document.getElementById("numGears").value;
-      let tireSize = document.getElementById("tireSize").value;
-      let targetSpeed = document.getElementById("targetTopSpeed").value;
-      
-      let csvContent = "data:text/csv;charset=utf-8,";
-      csvContent += "Parameter,Value\n";
-      csvContent += `Horsepower,${hp}\n`;
-      csvContent += `Weight,${weight}\n`;
-      csvContent += `RPM,${rpm}\n`;
-      csvContent += `Front Distribution,${frontDist}\n`;
-      csvContent += `Performance Index,${performanceIndex}\n`;
-      csvContent += `Driving Surface,${drivingSurface}\n`;
-      csvContent += `Tune Type,${tuneType}\n`;
-      csvContent += `Gear Tuning,${gearTuning}\n`;
-      csvContent += `Number of Gears,${numGears}\n`;
-      csvContent += `Tire Size,${tireSize}\n`;
-      csvContent += `Target Top Speed,${targetSpeed}\n`;
-      
-      // Add simulated performance results (using same formulas as calculateTune)
-      let zeroToSixty = (weight / hp * 2).toFixed(2);
-      let lapTime = (zeroToSixty * 5).toFixed(2);
-      csvContent += `Estimated 0-60 Time,${zeroToSixty} seconds\n`;
-      csvContent += `Estimated Lap Time,${lapTime} seconds\n`;
-      
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", "tuning_profile.csv");
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      console.log("CSV exported.");
     }
   </script>
 </body>
