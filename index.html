@@ -82,7 +82,7 @@
         </select>
 
         <label for="horsepower">Enter Horsepower (HP):</label>
-        <input type="number" id="horsepower" placeholder="e.g. 500">
+        <input type="number" id="horsepower" placeholder="e.g. 500" oninput="calculateTune()">
 
         <button onclick="calculateTune()">Calculate Tune</button>
 
@@ -104,10 +104,19 @@
             let pp = selectedOption.getAttribute("data-pp");
             let drivetrain = selectedOption.getAttribute("data-drivetrain");
 
+            // Power-to-weight ratio
             let powerToWeight = (hp / weight).toFixed(2);
+
+            // Fine-tuning based on horsepower and weight
             let downforce = Math.round((hp / 2) * 0.1);
             let lsd = Math.round((hp / 100) * 10);
             let suspension = (weight / 10).toFixed(1);
+            
+            // Adjustments based on drivetrain
+            if (drivetrain === "AWD") {
+                suspension *= 1.2;  // AWD cars need stiffer suspension
+                downforce *= 1.1;   // AWD cars benefit from slightly more downforce
+            }
 
             document.getElementById("results").innerHTML = `
                 <h2>Tuning Results</h2>
