@@ -18,6 +18,8 @@
             text-align: center;
             padding: 0 20px;
             overflow-x: hidden;
+            background: linear-gradient(135deg, rgba(255, 87, 51, 0.1), rgba(0, 123, 255, 0.1));
+            animation: fadeInBackground 3s ease-in-out forwards;
         }
 
         h1 {
@@ -25,7 +27,7 @@
             font-size: 3em;
             font-weight: bold;
             color: #333;
-            animation: fadeIn 1s ease-in-out;
+            animation: fadeIn 1.5s ease-in-out;
         }
 
         .container {
@@ -35,7 +37,7 @@
             background: #fff;
             border-radius: 12px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            animation: slideUp 1s ease-in-out;
+            animation: fadeInContainer 2s ease-in-out;
         }
 
         label {
@@ -93,6 +95,7 @@
             border-radius: 8px;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
             display: none;
+            animation: fadeInResults 2.5s ease-in-out;
         }
 
         #results p {
@@ -104,9 +107,19 @@
             to { opacity: 1; }
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes fadeInBackground {
+            from { background: #f9f9f9; }
+            to { background: linear-gradient(135deg, rgba(255, 87, 51, 0.1), rgba(0, 123, 255, 0.1)); }
+        }
+
+        @keyframes fadeInContainer {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes fadeInResults {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
     </style>
 </head>
@@ -228,4 +241,10 @@
                 <p><strong>Camber (Front):</strong> ${camberFront}°</p>
                 <p><strong>Camber (Rear):</strong> ${camberRear}°</p>
                 <p><strong>Driving Surface:</strong> ${drivingSurface}</p>
-                <p><strong>Tune Type:</strong> ${tune
+                <p><strong>Tune Type:</strong> ${tuneType}</p>
+            `;
+        }
+    </script>
+
+</body>
+</html>
