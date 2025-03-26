@@ -5,66 +5,107 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>GT7 Tuning Calculator</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #121212;
-            color: white;
-            text-align: center;
+        * {
             margin: 0;
             padding: 0;
+            box-sizing: border-box;
         }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #f9f9f9;
+            color: #333;
+            text-align: center;
+            padding: 0 20px;
+            overflow-x: hidden;
+        }
+
         h1 {
-            margin-top: 20px;
-            font-size: 2em;
+            margin-top: 40px;
+            font-size: 3em;
+            font-weight: bold;
+            color: #333;
             animation: fadeIn 1s ease-in-out;
         }
+
         .container {
             max-width: 600px;
-            margin: auto;
-            padding: 20px;
-            background: #1e1e1e;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-            margin-top: 20px;
+            margin: 50px auto;
+            padding: 30px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             animation: slideUp 1s ease-in-out;
         }
-        label, select, input {
+
+        label {
             display: block;
-            width: 100%;
-            margin: 10px 0;
-            padding: 10px;
-            font-size: 1em;
-            border-radius: 5px;
-            border: none;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-align: left;
+            color: #444;
         }
+
         select, input {
-            background: #333;
-            color: white;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            background: #f1f1f1;
+            color: #333;
+            transition: all 0.3s ease;
         }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #ff5733;
+            background: #fff;
+            box-shadow: 0 0 8px rgba(255, 87, 51, 0.5);
+        }
+
         button {
             width: 100%;
-            padding: 10px;
-            font-size: 1.2em;
+            padding: 15px;
             background: #ff5733;
             color: white;
+            font-size: 1.2em;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
+            transition: all 0.3s ease;
+            margin-top: 20px;
         }
+
         button:hover {
             background: #ff2a00;
+            transform: translateY(-2px);
         }
+
         #results {
-            margin-top: 20px;
+            margin-top: 40px;
             font-size: 1.2em;
+            color: #444;
+            padding: 20px;
+            background: #f1f1f1;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: none;
         }
+
+        #results p {
+            margin-bottom: 10px;
+        }
+
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
         }
+
         @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
+            from { transform: translateY(50px); opacity: 0; }
             to { transform: translateY(0); opacity: 1; }
         }
     </style>
@@ -148,7 +189,6 @@
 
     <script>
         function calculateTune() {
-            // Collect all the inputs
             let hp = document.getElementById("horsepower").value;
             let driveType = document.getElementById("driveType").value;
             let weight = document.getElementById("weight").value;
@@ -166,19 +206,17 @@
                 return;
             }
 
-            // Simple calculation examples (for demo purposes)
             let powerToWeight = (hp / weight).toFixed(2);
             let downforce = Math.round((hp / 2) * 0.1);
             let suspension = (weight / 10).toFixed(1);
 
-            // Additional calculations (simplified logic for now)
-            let brakeBalance = (frontDistribution / 100) * 0.7;  // Example calculation
-            let transmission = rpm / numGears;  // Basic RPM to gear relation
+            let brakeBalance = (frontDistribution / 100) * 0.7;
+            let transmission = rpm / numGears;
             let lsd = Math.round((hp / 100) * 10);
             let camberFront = Math.round((weight / 1000) * 0.1);
             let camberRear = camberFront * 1.1;
 
-            // Display results
+            document.getElementById("results").style.display = 'block';
             document.getElementById("results").innerHTML = `
                 <h2>Tuning Results</h2>
                 <p><strong>Power-to-Weight Ratio:</strong> ${powerToWeight} HP/kg</p>
@@ -190,10 +228,4 @@
                 <p><strong>Camber (Front):</strong> ${camberFront}°</p>
                 <p><strong>Camber (Rear):</strong> ${camberRear}°</p>
                 <p><strong>Driving Surface:</strong> ${drivingSurface}</p>
-                <p><strong>Tune Type:</strong> ${tuneType}</p>
-            `;
-        }
-    </script>
-
-</body>
-</html>
+                <p><strong>Tune Type:</strong> ${tune
