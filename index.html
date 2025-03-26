@@ -73,14 +73,16 @@
 
     <h1>GT7 Tuning Calculator</h1>
     <div class="container">
-        <label for="car">Select Car:</label>
-        <select id="car">
-            <option value="rx7" data-weight="1250" data-pp="600" data-drivetrain="RWD">Mazda RX-7</option>
-            <option value="r34" data-weight="1560" data-pp="650" data-drivetrain="AWD">Nissan Skyline R34</option>
-            <option value="supra" data-weight="1570" data-pp="670" data-drivetrain="RWD">Toyota Supra</option>
-            <option value="911" data-weight="1400" data-pp="700" data-drivetrain="RWD">Porsche 911 GT3</option>
+        <!-- Car Selection (for Decoration Only) -->
+        <label for="car">Select Car (Decoration Only):</label>
+        <select id="car" disabled>
+            <option value="rx7">Mazda RX-7</option>
+            <option value="r34">Nissan Skyline R34</option>
+            <option value="supra">Toyota Supra</option>
+            <option value="911">Porsche 911 GT3</option>
         </select>
 
+        <!-- Tuning Input Fields -->
         <label for="horsepower">Enter Horsepower (HP):</label>
         <input type="number" id="horsepower" placeholder="e.g. 500" oninput="calculateTune()">
 
@@ -147,7 +149,6 @@
     <script>
         function calculateTune() {
             // Collect all the inputs
-            let car = document.getElementById("car");
             let hp = document.getElementById("horsepower").value;
             let driveType = document.getElementById("driveType").value;
             let weight = document.getElementById("weight").value;
@@ -165,11 +166,12 @@
                 return;
             }
 
+            // Simple calculation examples (for demo purposes)
             let powerToWeight = (hp / weight).toFixed(2);
             let downforce = Math.round((hp / 2) * 0.1);
             let suspension = (weight / 10).toFixed(1);
 
-            // Additional Calculations (simplified logic for now)
+            // Additional calculations (simplified logic for now)
             let brakeBalance = (frontDistribution / 100) * 0.7;  // Example calculation
             let transmission = rpm / numGears;  // Basic RPM to gear relation
             let lsd = Math.round((hp / 100) * 10);
@@ -179,7 +181,6 @@
             // Display results
             document.getElementById("results").innerHTML = `
                 <h2>Tuning Results</h2>
-                <p><strong>Car:</strong> ${car.options[car.selectedIndex].text}</p>
                 <p><strong>Power-to-Weight Ratio:</strong> ${powerToWeight} HP/kg</p>
                 <p><strong>Downforce:</strong> ${downforce}</p>
                 <p><strong>Suspension Stiffness:</strong> ${suspension}</p>
