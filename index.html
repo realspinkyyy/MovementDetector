@@ -119,57 +119,63 @@
       select, input { font-size: 1em; padding: 10px; }
       button { font-size: 1em; padding: 12px; }
     }
-    /* Developer Console Styles */
-    #devConsoleToggle {
+    /* Developer Console Chat Box Styles */
+    #devChatToggle {
       position: fixed;
-      top: 20px;
+      bottom: 20px;
       right: 20px;
       background: #ff5733;
-      width: 40px;
-      height: 40px;
-      border-radius: 4px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
       cursor: pointer;
       z-index: 1000;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    #devConsoleToggle div {
+    #devChatToggle span {
+      display: block;
       width: 25px;
       height: 3px;
       background: white;
       margin: 3px 0;
     }
-    #devConsole {
+    #devChat {
       position: fixed;
-      top: 0;
-      right: -350px;
-      width: 350px;
-      height: 100vh;
+      bottom: 80px;
+      right: 20px;
+      width: 90%;
+      max-width: 350px;
+      max-height: 50vh;
       background: #222;
       color: #0f0;
-      padding: 20px;
+      padding: 10px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
       overflow-y: auto;
-      transition: right 0.5s ease;
+      display: none;
       z-index: 999;
+      font-size: 0.9em;
+      text-align: left;
     }
-    #devConsole.open {
-      right: 0;
-    }
-    #devConsole h2 {
-      font-size: 1.2em;
-      margin-bottom: 10px;
+    #devChat h3 {
+      font-size: 1em;
+      margin-bottom: 5px;
       border-bottom: 1px solid #555;
       padding-bottom: 5px;
     }
-    #devConsole .status {
-      font-size: 0.9em;
-      margin-bottom: 10px;
+    #devChat .logMessage {
+      margin-bottom: 5px;
+      padding: 5px;
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.3);
     }
-    #devConsole pre {
-      font-size: 0.8em;
-      white-space: pre-wrap;
-      word-wrap: break-word;
+    #devChat .error {
+      background: rgba(255, 0, 0, 0.3);
+    }
+    #devChat .warning {
+      background: rgba(255, 255, 0, 0.3);
     }
   </style>
 </head>
@@ -254,59 +260,66 @@
   <!-- Results Section -->
   <div id="results"></div>
 
-  <!-- Developer Console Toggle -->
-  <div id="devConsoleToggle" onclick="toggleDevConsole()">
-    <div></div>
-    <div></div>
-    <div></div>
+  <!-- Developer Console Chat Box Toggle -->
+  <div id="devChatToggle" onclick="toggleDevChat()">
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 
-  <!-- Developer Console Panel -->
-  <div id="devConsole">
-    <h2>Dev Console</h2>
-    <div class="status">
-      Errors: <span id="errorCount">0</span> | Warnings: <span id="warningCount">0</span>
-    </div>
-    <pre id="logOutput"></pre>
+  <!-- Developer Console Chat Box -->
+  <div id="devChat">
+    <h3>Dev Console</h3>
+    <div id="devChatContent"></div>
   </div>
 
   <script>
-    // Debug logging functions and storage
+    // Debug logging and chat box functions
     let debugMessages = [];
     let errorCount = 0;
     let warningCount = 0;
 
     function logDebug(message) {
-      debugMessages.push("DEBUG: " + message);
-      updateConsole();
+      addLogMessage("DEBUG: " + message);
     }
     function logError(message) {
       errorCount++;
-      debugMessages.push("ERROR: " + message);
-      updateConsole();
+      addLogMessage("ERROR: " + message, "error");
     }
     function logWarning(message) {
       warningCount++;
-      debugMessages.push("WARNING: " + message);
-      updateConsole();
+      addLogMessage("WARNING: " + message, "warning");
     }
-    function updateConsole() {
-      document.getElementById("errorCount").textContent = errorCount;
-      document.getElementById("warningCount").textContent = warningCount;
-      document.getElementById("logOutput").textContent = debugMessages.join("\n");
+    function addLogMessage(message, type = "") {
+      debugMessages.push(message);
+      updateDevChat();
+    }
+    function updateDevChat() {
+      const contentDiv = document.getElementById("devChatContent");
+      contentDiv.innerHTML = "";
+      debugMessages.forEach(msg => {
+        const p = document.createElement("div");
+        p.classList.add("logMessage");
+        if (msg.includes("ERROR:")) p.classList.add("error");
+        else if (msg.includes("WARNING:")) p.classList.add("warning");
+        p.textContent = msg;
+        contentDiv.appendChild(p);
+      });
     }
 
-    // Toggle developer console panel
-    function toggleDevConsole() {
-      const consoleDiv = document.getElementById("devConsole");
-      consoleDiv.classList.toggle("open");
+    function toggleDevChat() {
+      const chatBox = document.getElementById("devChat");
+      if (chatBox.style.display === "block") {
+        chatBox.style.display = "none";
+      } else {
+        chatBox.style.display = "block";
+      }
     }
 
     // Main tuning calculation function
     function calculateTune() {
       logDebug("Calculating tuning parameters...");
       
-      // Get basic values
       let hp = parseFloat(document.getElementById("horsepower").value);
       let weight = parseFloat(document.getElementById("weight").value);
       let frontDist = parseFloat(document.getElementById("frontDistribution").value);
@@ -316,14 +329,12 @@
       let targetSpeed = parseFloat(document.getElementById("targetTopSpeed").value);
       let lapDistance = parseFloat(document.getElementById("lapDistance").value);
       
-      // Get additional selections
       let driveType = document.getElementById("driveType").value;
       let performanceIndex = parseFloat(document.getElementById("performanceIndex").value);
       let drivingSurface = document.getElementById("drivingSurface").value;
       let tuneType = document.getElementById("tuneType").value;
-      let gearTuning = document.getElementById("gearTuning").value; // yes or no
+      let gearTuning = document.getElementById("gearTuning").value;
 
-      // Validate required fields
       if (!hp || !weight || !frontDist || !rpm || !numGears || !tireSize || !targetSpeed || !lapDistance) {
         document.getElementById("results").innerHTML = "<p>Please fill in all fields correctly.</p>";
         document.getElementById("results").style.display = "block";
@@ -332,77 +343,53 @@
       }
       logDebug("All required fields provided.");
 
-      /* Placeholder Calculations (Adjust formulas as needed) */
-
-      // 1. Break Balance (75% of front distribution)
       let breakBalance = (frontDist * 0.75).toFixed(2);
-      // 2. Transmission Ratio (RPM divided by number of gears)
       let transmission = (rpm / numGears).toFixed(2);
-      // 3. ECU Power and Ballast
       let ecuPower = (hp * performanceIndex / 100).toFixed(2);
       let ballast = (weight * 0.02).toFixed(2);
-      // 4. Aerodynamics Rating
       let tuneMultiplier = (tuneType === "track") ? 1.1 : (tuneType === "drift" ? 0.8 : 1);
       let aerodynamics = (targetSpeed * 0.3 * tuneMultiplier).toFixed(2);
-      // 5. Differential & LSD
       let driveFactor = (driveType === "AWD") ? 1 : (driveType === "FWD" ? 0.95 : 1.05);
       let differential = (hp / 100 * driveFactor).toFixed(2);
       let lsd = differential;
-      // 6. Suspension
       let suspension = (weight / 20).toFixed(2);
-      // 7. Tire Rating
       let tireRating = (tireSize * 5).toFixed(2);
-      // 8. Tire Pressure (Front & Rear)
       let frontPressure = ((weight * (frontDist / 100)) / tireSize).toFixed(2);
       let rearPressure = ((weight * (1 - frontDist / 100)) / tireSize).toFixed(2);
       
-      // 9. Gear Ratios
       let gearRatios = "";
       for (let i = 1; i <= numGears; i++) {
         let ratio = (transmission * (i / numGears)).toFixed(2);
         gearRatios += `Gear ${i}: ${ratio}<br>`;
       }
-      let finalDrive = "Final Drive: 0.90"; // Placeholder
+      let finalDrive = "Final Drive: 0.90";
       gearRatios += finalDrive;
       
-      // 10. Camber (Front & Rear)
       let camberFront = (weight / 10000).toFixed(2);
       let camberRear = (camberFront * 1.1).toFixed(2);
-      // 11. Toe (Front & Rear)
       let toeFront = 0.10;
       let toeRear = 0.15;
-      // 12. Caster
       let caster = (5 + performanceIndex * 0.5).toFixed(2);
-      // 13. Anti Roll Bar (Front & Rear)
       let antiRollFront = (weight / 200).toFixed(2);
       let antiRollRear = (weight / 180).toFixed(2);
-      // 14. Springs (Front & Rear)
       let springsFront = (weight / 100).toFixed(2);
       let springsRear = (weight / 90).toFixed(2);
-      // 15. Ride Height (Front & Rear)
       let rideHeightFront = (weight / 500).toFixed(2);
       let rideHeightRear = (weight / 480).toFixed(2);
-      // 16. Rebound (Front & Rear)
       let reboundFront = (weight / 600).toFixed(2);
       let reboundRear = (weight / 580).toFixed(2);
-      // 17. Bump (Front & Rear)
       let bumpFront = (weight / 700).toFixed(2);
       let bumpRear = (weight / 680).toFixed(2);
-      // 18. Aero Downforce (Front & Rear)
       let aeroDownforceFront = (aerodynamics * 0.6).toFixed(2);
       let aeroDownforceRear = (aerodynamics * 0.4).toFixed(2);
-      // 19. Braking (Force & Balance)
       let brakingForce = (hp / 10).toFixed(2);
       let brakingBalance = (frontDist * 0.8).toFixed(2);
 
-      // Advanced Performance Simulation:
       let zeroToSixty = (weight / hp * 2).toFixed(2);
-      // Estimated Lap Time: Assume average lap speed is 80% of target top speed.
       let estimatedLapTime = ((lapDistance / (0.8 * targetSpeed)) * 3600).toFixed(2);
 
       logDebug("Calculations complete.");
 
-      // Compile results HTML
       let resultsHTML = `
         <h2>Tuning Results</h2>
         <p><strong>Break Balance:</strong> ${breakBalance}</p>
