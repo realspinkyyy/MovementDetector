@@ -1,429 +1,153 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GT7 Tuning Calculator</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chat App</title>
   <style>
-    /* Base resets */
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
-      font-family: 'Arial', sans-serif;
-      background: linear-gradient(135deg, #1a1a1a, #333);
-      color: white;
-      text-align: center;
-      padding: 20px;
-      overflow-x: hidden;
-      position: relative;
-    }
-    h1 {
-      margin-top: 40px;
-      font-size: 3em;
-      font-weight: bold;
-      text-shadow: 2px 2px 10px rgba(255, 87, 51, 0.8);
-      animation: fadeIn 1s ease-in-out;
-    }
-    .container {
-      max-width: 800px;
-      margin: 40px auto;
-      padding: 30px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(255, 87, 51, 0.2);
-      backdrop-filter: blur(10px);
-      animation: slideUp 1s ease-in-out;
-      text-align: left;
-    }
-    /* Label styling */
-    label {
-      display: block;
-      font-size: 1.2em;
-      margin-bottom: 8px;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: white;
-      text-shadow: 1px 1px 5px rgba(255, 87, 51, 0.7);
-      transition: all 0.3s ease-in-out;
-    }
-    /* Input styling */
-    select, input {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 20px;
-      font-size: 1.1em;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      background: #333;
-      color: white;
-      transition: all 0.3s ease;
-      box-shadow: inset 0px 0px 10px rgba(255, 87, 51, 0.3);
-    }
-    select:focus, input:focus {
-      outline: none;
-      border-color: #ff5733;
-      background: #444;
-      box-shadow: 0px 0px 10px rgba(255, 87, 51, 0.7);
-    }
-    /* Button styling */
-    button {
-      width: 100%;
-      padding: 15px;
-      background: #ff5733;
-      color: white;
-      font-size: 1.2em;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 20px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      font-weight: bold;
-      text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.3);
-    }
-    button:hover {
-      background: #ff2a00;
-      transform: translateY(-2px);
-    }
-    /* Results section */
-    #results {
-      margin-top: 40px;
-      font-size: 1em;
-      color: #fff;
-      padding: 20px;
-      background: rgba(255, 87, 51, 0.2);
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(255, 87, 51, 0.3);
-      display: none;
-      text-align: left;
-      line-height: 1.5;
-    }
-    /* Animations */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    @keyframes slideUp {
-      from { transform: translateY(50px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    /* Responsive */
-    @media (max-width: 768px) {
-      h1 { font-size: 2.5em; }
-      .container { padding: 20px; }
-      select, input { font-size: 1em; padding: 10px; }
-      button { font-size: 1em; padding: 12px; }
-    }
-    /* Developer Console Chat Box Styles */
-    #devChatToggle {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      background: #ff5733;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      cursor: pointer;
-      z-index: 1000;
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
       display: flex;
-      align-items: center;
       justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
     }
-    #devChatToggle span {
-      display: block;
-      width: 25px;
-      height: 3px;
-      background: white;
-      margin: 3px 0;
+    .chat-container {
+      width: 400px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
-    #devChat {
-      position: fixed;
-      bottom: 80px;
-      right: 20px;
-      width: 90%;
-      max-width: 350px;
-      max-height: 50vh;
-      background: #222;
-      color: #0f0;
-      padding: 10px;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    .header {
+      text-align: center;
+      font-size: 1.5em;
+      margin-bottom: 20px;
+    }
+    .chat-box {
+      max-height: 300px;
       overflow-y: auto;
-      display: none;
-      z-index: 999;
-      font-size: 0.9em;
-      text-align: left;
+      margin-bottom: 20px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 5px;
+      background-color: #fafafa;
     }
-    #devChat h3 {
+    .message {
+      display: flex;
+      margin-bottom: 10px;
+    }
+    .message .name {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+    .message .phone {
+      color: #777;
+    }
+    .message .text {
+      margin-left: 10px;
+      background-color: #f1f1f1;
+      padding: 8px;
+      border-radius: 5px;
+      max-width: 75%;
+    }
+    .input-box {
+      display: flex;
+      gap: 10px;
+    }
+    .input-box input {
+      width: 70%;
+      padding: 10px;
+      border-radius: 5px;
+      border: 1px solid #ddd;
       font-size: 1em;
-      margin-bottom: 5px;
-      border-bottom: 1px solid #555;
-      padding-bottom: 5px;
     }
-    #devChat .logMessage {
-      margin-bottom: 5px;
-      padding: 5px;
-      border-radius: 4px;
-      background: rgba(0, 0, 0, 0.3);
+    .input-box button {
+      width: 25%;
+      padding: 10px;
+      border-radius: 5px;
+      border: none;
+      background-color: #4CAF50;
+      color: white;
+      font-size: 1em;
+      cursor: pointer;
     }
-    #devChat .error {
-      background: rgba(255, 0, 0, 0.3);
-    }
-    #devChat .warning {
-      background: rgba(255, 255, 0, 0.3);
+    .input-box button:hover {
+      background-color: #45a049;
     }
   </style>
 </head>
 <body>
-  <h1>GT7 Tuning Calculator</h1>
-  <div class="container">
-    <!-- Basic Car & Performance Inputs -->
-    <label for="car">Select Car:</label>
-    <select id="car">
-      <option value="rx7">Mazda RX-7</option>
-      <option value="r34">Nissan Skyline R34</option>
-      <option value="supra">Toyota Supra</option>
-      <option value="911">Porsche 911 GT3</option>
-    </select>
-
-    <label for="horsepower">Enter Horsepower (HP):</label>
-    <input type="number" id="horsepower" placeholder="e.g. 500" />
-
-    <!-- Advanced Input Fields -->
-    <label for="driveType">Drive Type:</label>
-    <select id="driveType">
-      <option value="AWD">AWD</option>
-      <option value="FWD">FWD</option>
-      <option value="RWD">RWD</option>
-    </select>
-
-    <label for="weight">Weight (lbs):</label>
-    <input type="number" id="weight" placeholder="e.g. 3200" />
-
-    <label for="frontDistribution">Front Distribution (%):</label>
-    <input type="number" id="frontDistribution" placeholder="e.g. 50" />
-
-    <label for="performanceIndex">Performance Index:</label>
-    <select id="performanceIndex">
-      <option value="1">E</option>
-      <option value="2">D</option>
-      <option value="3">C</option>
-      <option value="4">B</option>
-      <option value="5">A</option>
-      <option value="6">A+</option>
-      <option value="7">S</option>
-    </select>
-
-    <label for="drivingSurface">Driving Surface:</label>
-    <select id="drivingSurface">
-      <option value="street">Street</option>
-      <option value="dirt">Dirt</option>
-    </select>
-
-    <label for="tuneType">Tune Type:</label>
-    <select id="tuneType">
-      <option value="race">Race</option>
-      <option value="drift">Drift</option>
-      <option value="track">Track</option>
-    </select>
-
-    <label for="gearTuning">Include Gear Tuning:</label>
-    <select id="gearTuning">
-      <option value="yes">Yes</option>
-      <option value="no">No</option>
-    </select>
-
-    <label for="rpm">RPM (Max RPM):</label>
-    <input type="number" id="rpm" placeholder="e.g. 8000" />
-
-    <label for="numGears">Number of Gears:</label>
-    <input type="number" id="numGears" placeholder="e.g. 6" />
-
-    <label for="tireSize">Drive Tire Size (inches):</label>
-    <input type="number" id="tireSize" placeholder="e.g. 18" />
-
-    <label for="targetTopSpeed">Target Top Speed (MPH):</label>
-    <input type="number" id="targetTopSpeed" placeholder="e.g. 200" />
-
-    <label for="lapDistance">Lap Distance (miles):</label>
-    <input type="number" id="lapDistance" placeholder="e.g. 2.5" />
-
-    <!-- Calculation Button -->
-    <button onclick="calculateTune()">Calculate Tune</button>
-  </div>
-
-  <!-- Results Section -->
-  <div id="results"></div>
-
-  <!-- Developer Console Chat Box Toggle -->
-  <div id="devChatToggle" onclick="toggleDevChat()">
-    <span></span>
-    <span></span>
-    <span></span>
-  </div>
-
-  <!-- Developer Console Chat Box -->
-  <div id="devChat">
-    <h3>Dev Console</h3>
-    <div id="devChatContent"></div>
+  <div class="chat-container">
+    <div class="header">Chat with People</div>
+    <div id="chatBox" class="chat-box"></div>
+    <div class="input-box">
+      <input id="messageInput" type="text" placeholder="Type a message..." />
+      <button id="sendMessageBtn">Send</button>
+    </div>
   </div>
 
   <script>
-    // Debug logging and chat box functions
-    let debugMessages = [];
-    let errorCount = 0;
-    let warningCount = 0;
+    // Simulate a chat database (replace with actual database connection)
+    const messages = [
+      { name: "John", phone: "0712345678", text: "Hello, how are you?" },
+      { name: "Alice", phone: "0712345679", text: "I'm good, thanks!" },
+    ];
 
-    function logDebug(message) {
-      addLogMessage("DEBUG: " + message);
-    }
-    function logError(message) {
-      errorCount++;
-      addLogMessage("ERROR: " + message, "error");
-    }
-    function logWarning(message) {
-      warningCount++;
-      addLogMessage("WARNING: " + message, "warning");
-    }
-    function addLogMessage(message, type = "") {
-      debugMessages.push(message);
-      updateDevChat();
-    }
-    function updateDevChat() {
-      const contentDiv = document.getElementById("devChatContent");
-      contentDiv.innerHTML = "";
-      debugMessages.forEach(msg => {
-        const p = document.createElement("div");
-        p.classList.add("logMessage");
-        if (msg.includes("ERROR:")) p.classList.add("error");
-        else if (msg.includes("WARNING:")) p.classList.add("warning");
-        p.textContent = msg;
-        contentDiv.appendChild(p);
+    // Display messages from the database
+    function displayMessages() {
+      const chatBox = document.getElementById("chatBox");
+      chatBox.innerHTML = ''; // Clear existing messages
+      messages.forEach((msg) => {
+        const messageElement = document.createElement("div");
+        messageElement.classList.add("message");
+        messageElement.innerHTML = `
+          <div>
+            <span class="name">${msg.name}</span>
+            <span class="phone">${msg.phone}</span>
+            <div class="text">${msg.text}</div>
+          </div>
+        `;
+        chatBox.appendChild(messageElement);
       });
     }
 
-    function toggleDevChat() {
-      const chatBox = document.getElementById("devChat");
-      if (chatBox.style.display === "block") {
-        chatBox.style.display = "none";
-      } else {
-        chatBox.style.display = "block";
+    // Send a new message
+    document.getElementById("sendMessageBtn").addEventListener("click", () => {
+      const messageInput = document.getElementById("messageInput");
+      const messageText = messageInput.value.trim();
+      if (messageText) {
+        const newMessage = {
+          name: "You", // Replace with the user's name from the registration
+          phone: "07111111111", // Replace with user's phone number
+          text: messageText,
+        };
+
+        // Push to the "database" (messages array)
+        messages.push(newMessage);
+
+        // Optionally send it to a real backend to store it (use AJAX/fetch)
+        // Example (uncomment and use for real API):
+        /*
+        fetch('YOUR_BACKEND_API_URL', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(newMessage),
+        });
+        */
+
+        // Display the new message
+        displayMessages();
+
+        // Clear the input field
+        messageInput.value = '';
       }
-    }
+    });
 
-    // Main tuning calculation function
-    function calculateTune() {
-      logDebug("Calculating tuning parameters...");
-      
-      let hp = parseFloat(document.getElementById("horsepower").value);
-      let weight = parseFloat(document.getElementById("weight").value);
-      let frontDist = parseFloat(document.getElementById("frontDistribution").value);
-      let rpm = parseFloat(document.getElementById("rpm").value);
-      let numGears = parseFloat(document.getElementById("numGears").value);
-      let tireSize = parseFloat(document.getElementById("tireSize").value);
-      let targetSpeed = parseFloat(document.getElementById("targetTopSpeed").value);
-      let lapDistance = parseFloat(document.getElementById("lapDistance").value);
-      
-      let driveType = document.getElementById("driveType").value;
-      let performanceIndex = parseFloat(document.getElementById("performanceIndex").value);
-      let drivingSurface = document.getElementById("drivingSurface").value;
-      let tuneType = document.getElementById("tuneType").value;
-      let gearTuning = document.getElementById("gearTuning").value;
-
-      if (!hp || !weight || !frontDist || !rpm || !numGears || !tireSize || !targetSpeed || !lapDistance) {
-        document.getElementById("results").innerHTML = "<p>Please fill in all fields correctly.</p>";
-        document.getElementById("results").style.display = "block";
-        logError("Validation failed: Missing required fields.");
-        return;
-      }
-      logDebug("All required fields provided.");
-
-      let breakBalance = (frontDist * 0.75).toFixed(2);
-      let transmission = (rpm / numGears).toFixed(2);
-      let ecuPower = (hp * performanceIndex / 100).toFixed(2);
-      let ballast = (weight * 0.02).toFixed(2);
-      let tuneMultiplier = (tuneType === "track") ? 1.1 : (tuneType === "drift" ? 0.8 : 1);
-      let aerodynamics = (targetSpeed * 0.3 * tuneMultiplier).toFixed(2);
-      let driveFactor = (driveType === "AWD") ? 1 : (driveType === "FWD" ? 0.95 : 1.05);
-      let differential = (hp / 100 * driveFactor).toFixed(2);
-      let lsd = differential;
-      let suspension = (weight / 20).toFixed(2);
-      let tireRating = (tireSize * 5).toFixed(2);
-      let frontPressure = ((weight * (frontDist / 100)) / tireSize).toFixed(2);
-      let rearPressure = ((weight * (1 - frontDist / 100)) / tireSize).toFixed(2);
-      
-      let gearRatios = "";
-      for (let i = 1; i <= numGears; i++) {
-        let ratio = (transmission * (i / numGears)).toFixed(2);
-        gearRatios += `Gear ${i}: ${ratio}<br>`;
-      }
-      let finalDrive = "Final Drive: 0.90";
-      gearRatios += finalDrive;
-      
-      let camberFront = (weight / 10000).toFixed(2);
-      let camberRear = (camberFront * 1.1).toFixed(2);
-      let toeFront = 0.10;
-      let toeRear = 0.15;
-      let caster = (5 + performanceIndex * 0.5).toFixed(2);
-      let antiRollFront = (weight / 200).toFixed(2);
-      let antiRollRear = (weight / 180).toFixed(2);
-      let springsFront = (weight / 100).toFixed(2);
-      let springsRear = (weight / 90).toFixed(2);
-      let rideHeightFront = (weight / 500).toFixed(2);
-      let rideHeightRear = (weight / 480).toFixed(2);
-      let reboundFront = (weight / 600).toFixed(2);
-      let reboundRear = (weight / 580).toFixed(2);
-      let bumpFront = (weight / 700).toFixed(2);
-      let bumpRear = (weight / 680).toFixed(2);
-      let aeroDownforceFront = (aerodynamics * 0.6).toFixed(2);
-      let aeroDownforceRear = (aerodynamics * 0.4).toFixed(2);
-      let brakingForce = (hp / 10).toFixed(2);
-      let brakingBalance = (frontDist * 0.8).toFixed(2);
-
-      let zeroToSixty = (weight / hp * 2).toFixed(2);
-      let estimatedLapTime = ((lapDistance / (0.8 * targetSpeed)) * 3600).toFixed(2);
-
-      logDebug("Calculations complete.");
-
-      let resultsHTML = `
-        <h2>Tuning Results</h2>
-        <p><strong>Break Balance:</strong> ${breakBalance}</p>
-        <p><strong>Transmission Ratio:</strong> ${transmission} RPM/Gear</p>
-        <p><strong>ECU Power:</strong> ${ecuPower}</p>
-        <p><strong>Ballast:</strong> ${ballast}</p>
-        <p><strong>Aerodynamics Rating:</strong> ${aerodynamics}</p>
-        <p><strong>Differential & LSD:</strong> ${differential}</p>
-        <p><strong>Suspension Stiffness:</strong> ${suspension}</p>
-        <p><strong>Tire Rating:</strong> ${tireRating}</p>
-        <p><strong>Front Tire Pressure:</strong> ${frontPressure} (lbs/inch)</p>
-        <p><strong>Rear Tire Pressure:</strong> ${rearPressure} (lbs/inch)</p>
-        <p><strong>Gear Ratios:</strong><br>${gearRatios}</p>
-        <p><strong>Camber:</strong> Front: ${camberFront}° | Rear: ${camberRear}°</p>
-        <p><strong>Toe:</strong> Front: ${toeFront}° | Rear: ${toeRear}°</p>
-        <p><strong>Caster:</strong> ${caster}°</p>
-        <p><strong>Anti Roll Bar:</strong> Front: ${antiRollFront} | Rear: ${antiRollRear}</p>
-        <p><strong>Springs:</strong> Front: ${springsFront} | Rear: ${springsRear}</p>
-        <p><strong>Ride Height:</strong> Front: ${rideHeightFront} | Rear: ${rideHeightRear}</p>
-        <p><strong>Rebound:</strong> Front: ${reboundFront} | Rear: ${reboundRear}</p>
-        <p><strong>Bump:</strong> Front: ${bumpFront} | Rear: ${bumpRear}</p>
-        <p><strong>Aero Downforce:</strong> Front: ${aeroDownforceFront} | Rear: ${aeroDownforceRear}</p>
-        <p><strong>Braking:</strong> Force: ${brakingForce} | Balance: ${brakingBalance}</p>
-        <hr>
-        <h2>Performance Simulation</h2>
-        <p><strong>Estimated 0-60 MPH Time:</strong> ${zeroToSixty} seconds</p>
-        <p><strong>Estimated Lap Time:</strong> ${estimatedLapTime} seconds</p>
-        <p><strong>Lap Distance:</strong> ${lapDistance} miles</p>
-      `;
-      
-      document.getElementById("results").innerHTML = resultsHTML;
-      document.getElementById("results").style.display = "block";
-      logDebug("Results displayed.");
-    }
+    // Initialize chat
+    displayMessages();
   </script>
 </body>
 </html>
